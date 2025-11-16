@@ -13,6 +13,14 @@
             background: #000;
             color: #fff;
             overflow-x: hidden;
+            min-height: 100vh;
+        }
+        section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
         }
         .galaxy {
             position: fixed;
@@ -46,6 +54,72 @@
             padding: 20px;
             position: relative;
             z-index: 1;
+            text-align: center;
+        }
+        .hero {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(255, 215, 0, 0.1));
+            border-radius: 0 0 50px 50px;
+        }
+        .hero-content h1 {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        .hero-content p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            color: #E0E0E0;
+        }
+        .hero button {
+            background: linear-gradient(45deg, #FFD700, #FFA000);
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+        .hero button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+        .shop-section, .ticket-section, .features {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 50px;
+            margin: 20px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .feature {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 2px solid #4CAF50;
+            border-radius: 30px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        .feature:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.4);
+        }
+        .feature h3 {
+            color: #FFD700;
+            margin-bottom: 15px;
+        }
+        footer {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 40px 0;
+            text-align: center;
+            border-radius: 50px 50px 0 0;
+            margin-top: 20px;
         }
         h1 {
             text-align: center;
@@ -68,7 +142,7 @@
         .item {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
             border: 2px solid #4CAF50;
-            border-radius: 20px;
+            border-radius: 30px;
             padding: 25px;
             text-align: center;
             transition: all 0.4s ease;
@@ -120,7 +194,7 @@
             color: #fff;
             border: none;
             padding: 12px 25px;
-            border-radius: 25px;
+            border-radius: 30px;
             cursor: pointer;
             margin: 10px 5px;
             transition: all 0.3s ease;
@@ -142,7 +216,7 @@
         .ticket-form {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
             border: 2px solid #4CAF50;
-            border-radius: 20px;
+            border-radius: 30px;
             padding: 30px;
             margin-bottom: 30px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -159,7 +233,7 @@
             padding: 15px;
             margin: 10px 0;
             border: 2px solid #4CAF50;
-            border-radius: 15px;
+            border-radius: 25px;
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             font-size: 1em;
@@ -175,7 +249,7 @@
             top: 20px;
             right: 20px;
             background: linear-gradient(45deg, #FF5722, #F44336);
-            border-radius: 50%;
+            border-radius: 30px;
             width: 60px;
             height: 60px;
             border: none;
@@ -205,7 +279,7 @@
         .modal-content {
             background: linear-gradient(135deg, #1b2735, #0f1419);
             padding: 30px;
-            border-radius: 20px;
+            border-radius: 30px;
             max-width: 800px;
             width: 95%;
             max-height: 90%;
@@ -229,31 +303,75 @@
     <div class="galaxy">
         <div class="stars" id="stars"></div>
     </div>
-    <div class="container">
-        <h1>Minecraft Netherite Shop</h1>
-        <div class="shop" id="shop"></div>
-        <div class="ticket-form">
-            <h2>Submit a Ticket</h2>
-            <form id="ticketForm">
-                <input type="text" id="name" placeholder="Your Name" required>
-                <input type="email" id="email" placeholder="Your Email" required>
-                <select id="item" required>
-                    <option value="">Select Item</option>
-                    <option value="Netherite Sword">Netherite Sword</option>
-                    <option value="Netherite Pickaxe">Netherite Pickaxe</option>
-                    <option value="Netherite Axe">Netherite Axe</option>
-                    <option value="Netherite Armor (Full Set)">Netherite Armor (Full Set)</option>
-                    <option value="Netherite Armor (Part)">Netherite Armor (Part)</option>
-                    <option value="Diamond Armor (Full Set)">Diamond Armor (Full Set)</option>
-                </select>
-                <textarea id="message" placeholder="Your Message" rows="4" required></textarea>
-                <button type="submit">Submit Ticket</button>
-            </form>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Minecraft Netherite Shop</h1>
+            <p>Discover the finest Netherite gear and armor. Enchanted, durable, and ready for battle!</p>
+            <button onclick="document.getElementById('shop').scrollIntoView({behavior: 'smooth'})">Explore Shop</button>
         </div>
-        <button class="admin-btn" onclick="openAdmin()">Admin</button>
-    </div>
-    <footer style="text-align: center; padding: 20px; color: #888; font-size: 0.8em; margin-top: 40px;">
-        <p>&copy; 2025 Minecraft Netherite Shop. All rights reserved. | Powered by Diamonds</p>
+    </section>
+
+    <!-- Shop Section -->
+    <section class="shop-section">
+        <div class="container">
+            <h2>Our Premium Items</h2>
+            <div class="shop" id="shop"></div>
+        </div>
+    </section>
+
+    <!-- Ticket Section -->
+    <section class="ticket-section">
+        <div class="container">
+            <div class="ticket-form">
+                <h2>Submit a Purchase Ticket</h2>
+                <form id="ticketForm">
+                    <input type="text" id="name" placeholder="Your Name" required>
+                    <input type="email" id="email" placeholder="Your Email" required>
+                    <select id="item" required>
+                        <option value="">Select Item</option>
+                        <option value="Netherite Sword">Netherite Sword</option>
+                        <option value="Netherite Pickaxe">Netherite Pickaxe</option>
+                        <option value="Netherite Axe">Netherite Axe</option>
+                        <option value="Netherite Armor (Full Set)">Netherite Armor (Full Set)</option>
+                        <option value="Netherite Armor (Part)">Netherite Armor (Part)</option>
+                        <option value="Diamond Armor (Full Set)">Diamond Armor (Full Set)</option>
+                    </select>
+                    <textarea id="message" placeholder="Your Message" rows="4" required></textarea>
+                    <button type="submit">Submit Ticket</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2>Why Choose Us?</h2>
+            <div class="features-grid">
+                <div class="feature">
+                    <h3>Enchanted Gear</h3>
+                    <p>All items come with powerful enchantments for maximum performance.</p>
+                </div>
+                <div class="feature">
+                    <h3>Premium Quality</h3>
+                    <p>Netherite durability ensures your gear lasts through the toughest adventures.</p>
+                </div>
+                <div class="feature">
+                    <h3>Fast Delivery</h3>
+                    <p>Quick ticket response and delivery system for your convenience.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <button class="admin-btn" onclick="openAdmin()">Admin</button>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Minecraft Netherite Shop. All rights reserved. | Powered by Diamonds</p>
+        </div>
     </footer>
     <div class="modal" id="adminModal">
         <div class="modal-content">
