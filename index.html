@@ -40,7 +40,7 @@
             50% { opacity: 1; }
         }
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
             position: relative;
@@ -48,76 +48,135 @@
         }
         h1 {
             text-align: center;
-            color: #4CAF50;
-            text-shadow: 0 0 10px #4CAF50;
+            color: #FFD700;
+            text-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700;
+            font-size: 3em;
+            margin-bottom: 40px;
+            font-family: 'Minecraft', sans-serif;
         }
         .shop {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
             margin-bottom: 40px;
         }
         .item {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid #4CAF50;
-            border-radius: 10px;
-            padding: 20px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            border: 2px solid #4CAF50;
+            border-radius: 20px;
+            padding: 25px;
             text-align: center;
-            transition: transform 0.3s;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
         }
         .item:hover {
-            transform: scale(1.05);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.4);
+            border-color: #FFD700;
         }
         .item h3 {
-            margin: 0 0 10px 0;
+            margin: 0 0 15px 0;
             color: #FFD700;
+            font-size: 1.4em;
+            text-shadow: 0 0 10px #FFD700;
         }
         .item p {
             margin: 10px 0;
+            color: #E0E0E0;
         }
         .price {
             font-weight: bold;
             color: #FF5722;
+            font-size: 1.2em;
+            text-shadow: 0 0 5px #FF5722;
+        }
+        .stock {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .in-stock {
+            color: #4CAF50;
+        }
+        .out-stock {
+            color: #F44336;
         }
         .deal {
             color: #FFC107;
         }
         button {
-            background: #4CAF50;
+            background: linear-gradient(45deg, #4CAF50, #66BB6A);
             color: #fff;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 25px;
+            border-radius: 25px;
             cursor: pointer;
-            margin: 5px;
-            transition: background 0.3s;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
         }
-        button:hover {
-            background: #45a049;
+        button:hover:not(:disabled) {
+            background: linear-gradient(45deg, #66BB6A, #81C784);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            opacity: 0.6;
         }
         .ticket-form {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid #4CAF50;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            border: 2px solid #4CAF50;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
         }
         .ticket-form h2 {
             margin-top: 0;
+            color: #FFD700;
+            text-align: center;
+            text-shadow: 0 0 10px #FFD700;
         }
-        input, textarea {
+        input, select, textarea {
             width: 100%;
-            padding: 10px;
+            padding: 15px;
             margin: 10px 0;
-            border: 1px solid #4CAF50;
-            border-radius: 5px;
+            border: 2px solid #4CAF50;
+            border-radius: 15px;
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #FFD700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
         .admin-btn {
             position: fixed;
             top: 20px;
             right: 20px;
+            background: linear-gradient(45deg, #FF5722, #F44336);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            border: none;
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+            transition: all 0.3s ease;
+        }
+        .admin-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
         }
         .modal {
             display: none;
@@ -126,24 +185,32 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             z-index: 10;
             justify-content: center;
             align-items: center;
+            backdrop-filter: blur(5px);
         }
         .modal-content {
-            background: #1b2735;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80%;
+            background: linear-gradient(135deg, #1b2735, #0f1419);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 800px;
+            width: 95%;
+            max-height: 90%;
             overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 2px solid #4CAF50;
         }
         .close {
             float: right;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 30px;
+            color: #FFD700;
+            transition: color 0.3s;
+        }
+        .close:hover {
+            color: #FF5722;
         }
     </style>
 </head>
