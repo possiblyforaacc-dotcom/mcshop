@@ -1,3 +1,8 @@
+// Initialize EmailJS
+(function() {
+    emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your EmailJS public key
+})();
+
 // Ticket system
 let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
 
@@ -18,7 +23,24 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
     };
     tickets.push(ticket);
     localStorage.setItem('tickets', JSON.stringify(tickets));
-    alert('Ticket submitted successfully!');
+
+    // Send email to admin
+    const adminEmailParams = {
+        from_name: name,
+        from_email: email,
+        item: item,
+        message: message,
+        ticket_id: ticket.id
+    };
+
+    emailjs.send('YOUR_SERVICE_ID', 'YOUR_ADMIN_TEMPLATE_ID', adminEmailParams)
+        .then(function(response) {
+            console.log('Admin notification sent:', response);
+        }, function(error) {
+            console.log('Failed to send admin notification:', error);
+        });
+
+    alert('Ticket submitted successfully! We will respond via email.');
     this.reset();
 });
 
@@ -97,6 +119,26 @@ function respondToTicket(id) {
     ticket.response = response;
     ticket.status = 'Responded';
     localStorage.setItem('tickets', JSON.stringify(tickets));
+
+    // Send email to customer
+    const customerEmailParams = {
+        to_name: ticket.name,
+        to_email: ticket.email,
+        item: ticket.item,
+        original_message: ticket.message,
+        response: response,
+        ticket_id: ticket.id
+    };
+
+    emailjs.send('YOUR_SERVICE_ID', 'YOUR_CUSTOMER_TEMPLATE_ID', customerEmailParams)
+        .then(function(response) {
+            console.log('Customer response sent:', response);
+            alert('Response sent successfully!');
+        }, function(error) {
+            console.log('Failed to send customer response:', error);
+            alert('Response saved but email failed to send. Check console for details.');
+        });
+
     displayTickets();
 }
 
