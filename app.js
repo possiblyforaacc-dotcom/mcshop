@@ -1,21 +1,16 @@
-// Initialize EmailJS
-(function() {
-    emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your EmailJS public key
-})();
-
 // Ticket system
 let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
 
 document.getElementById('ticketForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
+    const discord = document.getElementById('discord').value;
     const item = document.getElementById('item').value;
     const message = document.getElementById('message').value;
     const ticket = {
         id: Date.now(),
         name,
-        email,
+        discord,
         item,
         message,
         status: 'Open',
@@ -23,30 +18,13 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
     };
     tickets.push(ticket);
     localStorage.setItem('tickets', JSON.stringify(tickets));
-
-    // Send email to admin
-    const adminEmailParams = {
-        from_name: name,
-        from_email: email,
-        item: item,
-        message: message,
-        ticket_id: ticket.id
-    };
-
-    emailjs.send('YOUR_SERVICE_ID', 'YOUR_ADMIN_TEMPLATE_ID', adminEmailParams)
-        .then(function(response) {
-            console.log('Admin notification sent:', response);
-        }, function(error) {
-            console.log('Failed to send admin notification:', error);
-        });
-
-    alert('Ticket submitted successfully! We will respond via email.');
+    alert('Ticket submitted successfully! We will contact you via Discord.');
     this.reset();
 });
 
 function submitTicket(itemName) {
     document.getElementById('item').value = itemName;
-    document.getElementById('ticketForm').scrollIntoView();
+    document.getElementById('ticketForm').scrollIntoView({ behavior: 'smooth' });
 }
 
 // Admin functions
@@ -98,7 +76,7 @@ function displayTickets() {
         const row = document.createElement('tr');
         row.style.background = ticket.status === 'Closed' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.1)';
         row.innerHTML = `
-            <td style="padding: 10px; border: 1px solid #4CAF50; color: #E0E0E0;">${ticket.name}<br><small>${ticket.email}</small></td>
+            <td style="padding: 10px; border: 1px solid #4CAF50; color: #E0E0E0;">${ticket.name}<br><small>${ticket.discord}</small></td>
             <td style="padding: 10px; border: 1px solid #4CAF50; color: #E0E0E0;">${ticket.item}</td>
             <td style="padding: 10px; border: 1px solid #4CAF50; color: #E0E0E0;">${ticket.message}</td>
             <td style="padding: 10px; border: 1px solid #4CAF50; color: ${ticket.status === 'Closed' ? '#F44336' : ticket.status === 'Responded' ? '#4CAF50' : '#FFC107'};">${ticket.status}</td>
@@ -119,26 +97,7 @@ function respondToTicket(id) {
     ticket.response = response;
     ticket.status = 'Responded';
     localStorage.setItem('tickets', JSON.stringify(tickets));
-
-    // Send email to customer
-    const customerEmailParams = {
-        to_name: ticket.name,
-        to_email: ticket.email,
-        item: ticket.item,
-        original_message: ticket.message,
-        response: response,
-        ticket_id: ticket.id
-    };
-
-    emailjs.send('YOUR_SERVICE_ID', 'YOUR_CUSTOMER_TEMPLATE_ID', customerEmailParams)
-        .then(function(response) {
-            console.log('Customer response sent:', response);
-            alert('Response sent successfully!');
-        }, function(error) {
-            console.log('Failed to send customer response:', error);
-            alert('Response saved but email failed to send. Check console for details.');
-        });
-
+    alert('Response saved! Contact customer via Discord: ' + ticket.discord);
     displayTickets();
 }
 
