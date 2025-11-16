@@ -58,7 +58,7 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(45deg, transparent 30%, rgba(139, 92, 246, 0.05) 50%, transparent 70%);
-            animation: nebulaFlow 20s ease-in-out infinite;
+            /* Static for professional design */
             pointer-events: none;
         }
         @keyframes nebulaFlow {
@@ -84,7 +84,7 @@
             background: radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.2) 0%, transparent 50%),
                         radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
                         radial-gradient(circle at 40% 40%, rgba(30, 58, 138, 0.3) 0%, transparent 50%);
-            animation: galaxyRotate 240s linear infinite;
+            /* Static for professional appearance */
         }
         .galaxy::after {
             content: '';
@@ -100,7 +100,7 @@
                 rgba(139, 92, 246, 0.05) 2px,
                 rgba(139, 92, 246, 0.05) 4px
             );
-            animation: gridMove 120s linear infinite;
+            /* Static grid for clean look */
         }
         @keyframes galaxyRotate {
             from { transform: rotate(0deg); }
@@ -204,7 +204,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             text-shadow: 0 0 30px rgba(245, 158, 11, 0.5), 0 0 60px rgba(245, 158, 11, 0.3);
-            animation: pulse 6s infinite, textGlow 8s ease-in-out infinite alternate;
+            /* No animation for professional look */
             filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.5));
         }
         @keyframes textGlow {
@@ -275,7 +275,7 @@
             width: 200%;
             height: 200%;
             background: conic-gradient(from 0deg, transparent, rgba(139, 92, 246, 0.1), transparent 60deg, transparent 120deg, rgba(30, 58, 138, 0.1), transparent 180deg, transparent 240deg, rgba(168, 85, 247, 0.1), transparent 300deg, transparent);
-            animation: shopRotate 25s linear infinite;
+            /* Static for clean design */
             pointer-events: none;
         }
         @keyframes shopRotate {
@@ -296,7 +296,7 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(45deg, transparent 40%, rgba(139, 92, 246, 0.05) 50%, transparent 60%);
-            animation: ticketWave 15s ease-in-out infinite;
+            /* Static background */
             border-radius: 50px;
             pointer-events: none;
         }
@@ -1102,14 +1102,14 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.1), transparent);
-            animation: stellarWind 20s linear infinite;
+            /* Subtle static effect */
             pointer-events: none;
             z-index: -1;
         }
 
         /* Enhanced modal with cosmic effects */
         .modal-content {
-            animation: voidPortal 0.6s ease-out, hologram 8s ease-in-out infinite 0.6s;
+            /* Clean modal appearance */
         }
 
         /* Add energy flow to borders */
@@ -1118,17 +1118,17 @@
         .feature {
             background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(30, 58, 138, 0.1), rgba(15, 15, 35, 0.2));
             background-size: 200% 200%;
-            animation: energyFlow 15s ease infinite;
+            /* Static background for clean look */
         }
 
         /* Add nebula drift to sections */
         section::before {
-            animation: nebulaDrift 25s ease-in-out infinite, nebulaFlow 20s ease-in-out infinite;
+            /* Static sections for professional look */
         }
 
         /* Star field effect */
         .stars .star:nth-child(10n) {
-            animation: twinkle 4s infinite ease-in-out, float 15s ease-in-out infinite, starField 30s linear infinite;
+            /* Subtle static stars */
         }
 
         /* Performance optimizations */
@@ -1178,7 +1178,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: textGlow 3s ease-in-out infinite alternate, energyFlow 8s ease infinite;
+            /* Static text for professional appearance */
             text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
         }
 
@@ -1186,7 +1186,7 @@
         button {
             background: linear-gradient(135deg, var(--galaxy-accent), var(--galaxy-glow), var(--galaxy-star), var(--galaxy-accent));
             background-size: 300% 300%;
-            animation: energyFlow 10s ease infinite;
+            /* Static for professional design */
         }
 
         /* Complex input styling */
@@ -1212,14 +1212,14 @@
             width: 100%;
             height: 100%;
             background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
-            animation: cosmicPulse 15s ease-in-out infinite;
+            /* Static footer */
             pointer-events: none;
         }
 
         /* Admin button cosmic portal effect */
         .admin-btn {
             background: radial-gradient(circle, var(--galaxy-accent), var(--galaxy-glow), var(--galaxy-star));
-            animation: voidPortal 4s ease-in-out infinite, cosmicPulse 6s ease-in-out infinite;
+            /* Static admin button */
         }
 
         /* Modal backdrop cosmic effect */
@@ -1234,7 +1234,7 @@
             width: 100%;
             height: 100%;
             background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(139, 92, 246, 0.1) 0%, transparent 50%);
-            animation: nebulaDrift 30s ease-in-out infinite;
+            /* Static backdrop */
             pointer-events: none;
         }
 
@@ -1291,6 +1291,7 @@
                         <option value="Netherite Armor (Part)">Netherite Armor (Part)</option>
                         <option value="Diamond Armor (Full Set)">Diamond Armor (Full Set)</option>
                         <option value="Food x64">Food x64</option>
+                        <option value="Elytra">Elytra</option>
                     </select>
                     <textarea id="message" placeholder="Your Message" rows="4" required></textarea>
                     <button type="submit">Submit Ticket</button>

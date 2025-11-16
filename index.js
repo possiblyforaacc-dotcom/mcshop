@@ -22,7 +22,8 @@ const items = [
     { name: 'Netherite Armor (Full Set)', price: 80, description: 'Complete set, 20% off deal!', stock: 2 },
     { name: 'Netherite Armor (Individual Part)', price: 20, description: 'Helmet, Chestplate, Leggings, or Boots', stock: 10 },
     { name: 'Diamond Armor (Full Set, Enchanted)', price: 0, description: 'Full enchanted diamond set available', stock: 1 },
-    { name: 'Food x64', price: 5, description: '64 Baked Potatoes - Perfect for long adventures', stock: 20 }
+    { name: 'Food x64', price: 5, description: '64 Baked Potatoes - Perfect for long adventures', stock: 20 },
+    { name: 'Elytra', price: 30, description: 'Wings for flying through the skies', stock: 3 }
 ];
 
 // Display shop items
