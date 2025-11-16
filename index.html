@@ -548,8 +548,9 @@
         }
         .admin-btn {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             background: linear-gradient(45deg, #FF5722, #F44336);
             border-radius: 30px;
             width: 60px;
@@ -560,6 +561,7 @@
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
             transition: all 0.3s ease;
+            z-index: 1000;
         }
         .admin-btn:hover {
             transform: scale(1.1);
@@ -2182,22 +2184,43 @@
         <div class="container">
             <div class="ticket-form">
                 <h2>Submit a Purchase Ticket</h2>
-                <form id="ticketForm">
-                    <input type="text" id="name" placeholder="Your Name" required>
-                    <input type="text" id="discord" placeholder="Your Discord Username" required>
-                    <select id="item" required>
-                        <option value="">Select Item</option>
-                        <option value="Netherite Sword">Netherite Sword</option>
-                        <option value="Netherite Pickaxe">Netherite Pickaxe</option>
-                        <option value="Netherite Axe">Netherite Axe</option>
-                        <option value="Netherite Armor (Full Set)">Netherite Armor (Full Set)</option>
-                        <option value="Netherite Armor (Part)">Netherite Armor (Part)</option>
-                        <option value="Diamond Armor (Full Set)">Diamond Armor (Full Set)</option>
-                        <option value="Food x64">Food x64</option>
-                        <option value="Elytra">Elytra</option>
-                    </select>
-                    <textarea id="message" placeholder="Your Message" rows="4" required></textarea>
-                    <button type="submit">Submit Ticket</button>
+                <form id="ticketForm" class="ticket-form-enhanced">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name" class="required">Your Name</label>
+                            <input type="text" id="name" placeholder="Enter your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="discord" class="required">Discord Username</label>
+                            <input type="text" id="discord" placeholder="username#1234" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="item" class="required">Select Item</label>
+                            <select id="item" required>
+                                <option value="">Choose an item...</option>
+                                <option value="Netherite Sword">Netherite Sword (30 diamonds)</option>
+                                <option value="Netherite Pickaxe">Netherite Pickaxe (40 diamonds)</option>
+                                <option value="Netherite Axe">Netherite Axe (40 diamonds)</option>
+                                <option value="Netherite Armor (Full Set)">Netherite Armor (Full Set - 80 diamonds)</option>
+                                <option value="Netherite Armor (Part)">Netherite Armor (Part - 20 diamonds)</option>
+                                <option value="Diamond Armor (Full Set)">Diamond Armor (Full Set - Contact)</option>
+                                <option value="Elytra">Elytra (30 diamonds)</option>
+                                <option value="Fireworks x64">Fireworks x64 (20 diamonds)</option>
+                                <option value="Dragon Head 1x">Dragon Head 1x (50 diamonds)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantity" class="required">Quantity</label>
+                            <input type="number" id="quantity" min="1" value="1" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Additional Message</label>
+                        <textarea id="message" placeholder="Any special requests or notes..." rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary btn-lg">Submit Order</button>
                 </form>
             </div>
         </div>

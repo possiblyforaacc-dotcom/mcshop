@@ -6,21 +6,117 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
     const name = document.getElementById('name').value;
     const discord = document.getElementById('discord').value;
     const item = document.getElementById('item').value;
+    const quantity = document.getElementById('quantity').value;
     const message = document.getElementById('message').value;
+
+    // Validate Discord username format
+    if (!discord.includes('#')) {
+        alert('Please enter a valid Discord username (e.g., username#1234)');
+        return;
+    }
+
     const ticket = {
         id: Date.now(),
         name,
         discord,
         item,
+        quantity: parseInt(quantity),
         message,
         status: 'Open',
-        response: ''
+        response: '',
+        timestamp: new Date().toISOString()
     };
     tickets.push(ticket);
     localStorage.setItem('tickets', JSON.stringify(tickets));
-    alert('Ticket submitted successfully! We will contact you via Discord.');
+
+    // Send Discord webhook notification
+    sendDiscordNotification(ticket);
+
+    alert('Order submitted successfully! We will contact you via Discord.');
     this.reset();
+    document.getElementById('quantity').value = '1'; // Reset quantity
 });
+
+// Discord webhook integration
+function sendDiscordNotification(ticket) {
+    const webhookURL = 'YOUR_DISCORD_WEBHOOK_URL'; // Replace with your Discord webhook URL
+
+    if (webhookURL === 'YOUR_DISCORD_WEBHOOK_URL') {
+        console.log('Discord webhook not configured. Please set YOUR_DISCORD_WEBHOOK_URL in app.js');
+        return;
+    }
+
+    const embed = {
+        title: '🛒 New Order Received!',
+        color: 0x8B5CF6, // Purple color
+        fields: [
+            {
+                name: '👤 Customer',
+                value: ticket.name,
+                inline: true
+            },
+            {
+                name: '💬 Discord',
+                value: ticket.discord,
+                inline: true
+            },
+            {
+                name: '📦 Item',
+                value: ticket.item,
+                inline: false
+            },
+            {
+                name: '🔢 Quantity',
+                value: ticket.quantity.toString(),
+                inline: true
+            },
+            {
+                name: '💎 Total Diamonds',
+                value: calculateTotalDiamonds(ticket),
+                inline: true
+            },
+            {
+                name: '📝 Message',
+                value: ticket.message || 'No additional message',
+                inline: false
+            }
+        ],
+        timestamp: ticket.timestamp,
+        footer: {
+            text: `Order ID: ${ticket.id}`
+        }
+    };
+
+    fetch(webhookURL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            embeds: [embed],
+            content: `<@1160306193567338579> New order received!` // Mention the user
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to send Discord notification');
+        }
+        console.log('Discord notification sent successfully');
+    })
+    .catch(error => {
+        console.error('Error sending Discord notification:', error);
+    });
+}
+
+function calculateTotalDiamonds(ticket) {
+    // Extract price from item string (e.g., "Netherite Sword (30 diamonds)" -> 30)
+    const priceMatch = ticket.item.match(/\((\d+) diamonds?\)/i);
+    if (priceMatch) {
+        const unitPrice = parseInt(priceMatch[1]);
+        return (unitPrice * ticket.quantity).toString();
+    }
+    return 'Contact for pricing';
+}
 
 function submitTicket(itemName) {
     document.getElementById('item').value = itemName;
@@ -74,11 +170,13 @@ function displayTickets() {
     tickets.forEach(ticket => {
         const row = document.createElement('tr');
         const statusClass = ticket.status === 'Closed' ? 'status-closed' : ticket.status === 'Responded' ? 'status-responded' : 'status-open';
+        const quantity = ticket.quantity || 1;
+        const totalDiamonds = calculateTotalDiamonds(ticket);
         row.innerHTML = `
             <td>${ticket.name}<br><small class="text-secondary">${ticket.discord}</small></td>
-            <td>${ticket.item}</td>
+            <td>${ticket.item}<br><small class="text-secondary">Qty: ${quantity}</small></td>
             <td>${ticket.message}</td>
-            <td><span class="status-badge ${statusClass}">${ticket.status}</span></td>
+            <td><span class="status-badge ${statusClass}">${ticket.status}</span><br><small class="text-secondary">${totalDiamonds} diamonds</small></td>
             <td>
                 <div class="form-group">
                     <textarea id="response-${ticket.id}" placeholder="Your response..." class="w-100" rows="3">${ticket.response}</textarea>

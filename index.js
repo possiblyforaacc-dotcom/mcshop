@@ -23,7 +23,9 @@ let items = JSON.parse(localStorage.getItem('shopItems')) || [
     { name: 'Netherite Armor (Individual Part)', price: 20, description: 'Helmet, Chestplate, Leggings, or Boots', stock: 10 },
     { name: 'Diamond Armor (Full Set, Enchanted)', price: 0, description: 'Full enchanted diamond set available', stock: 1 },
     { name: 'Food x64', price: 5, description: '64 Baked Potatoes - Perfect for long adventures', stock: 20 },
-    { name: 'Elytra', price: 30, description: 'Wings for flying through the skies', stock: 3 }
+    { name: 'Elytra', price: 30, description: 'Wings for flying through the skies', stock: 3 },
+    { name: 'Fireworks x64', price: 20, description: '64 Fireworks for epic celebrations', stock: Infinity },
+    { name: 'Dragon Head 1x', price: 50, description: 'Rare dragon head trophy', stock: 3 }
 ];
 
 // Save items to localStorage
