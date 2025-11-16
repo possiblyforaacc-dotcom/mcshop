@@ -14,8 +14,8 @@ function createStars() {
     }
 }
 
-// Shop items data
-const items = [
+// Load items from localStorage or use defaults
+let items = JSON.parse(localStorage.getItem('shopItems')) || [
     { name: 'Netherite Sword (Enchanted)', price: 30, description: 'Powerful enchanted sword', stock: 5 },
     { name: 'Netherite Pickaxe', price: 40, description: 'Durable pickaxe for mining', stock: 3 },
     { name: 'Netherite Axe', price: 40, description: 'Sharp axe for chopping', stock: 4 },
@@ -26,12 +26,18 @@ const items = [
     { name: 'Elytra', price: 30, description: 'Wings for flying through the skies', stock: 3 }
 ];
 
+// Save items to localStorage
+function saveItems() {
+    localStorage.setItem('shopItems', JSON.stringify(items));
+}
+
 // Display shop items
 function displayShop() {
     const shop = document.getElementById('shop');
+    shop.innerHTML = '';
     items.forEach((item, index) => {
         const itemDiv = document.createElement('div');
-        itemDiv.className = 'item';
+        itemDiv.className = 'item card';
         itemDiv.style.animationDelay = (index * 0.1) + 's';
         const stockText = item.stock > 0 ? `Stock: ${item.stock}` : 'Out of Stock';
         const stockClass = item.stock > 0 ? 'in-stock' : 'out-stock';
@@ -39,8 +45,8 @@ function displayShop() {
             <h3>${item.name}</h3>
             <p>${item.description}</p>
             <p class="price">${item.price > 0 ? item.price + ' Diamonds' : 'Contact for Price'}</p>
-            <p class="stock ${stockClass}">${stockText}</p>
-            <button onclick="submitTicket('${item.name}')" ${item.stock <= 0 ? 'disabled' : ''}>Inquire</button>
+            <p class="stock ${stockClass} badge">${stockText}</p>
+            <button class="btn-primary" onclick="submitTicket('${item.name}')" ${item.stock <= 0 ? 'disabled' : ''}>Inquire</button>
         `;
         shop.appendChild(itemDiv);
     });
