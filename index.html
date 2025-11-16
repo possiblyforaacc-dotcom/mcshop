@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minecraft Netherite Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Orbitron', 'Arial', sans-serif;
             background: #000;
             color: #fff;
             overflow-x: hidden;
@@ -52,7 +53,11 @@
             text-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700;
             font-size: 3em;
             margin-bottom: 40px;
-            font-family: 'Minecraft', sans-serif;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         .shop {
             display: grid;
@@ -69,6 +74,12 @@
             transition: all 0.4s ease;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
         }
         .item:hover {
             transform: translateY(-10px) scale(1.02);
@@ -241,6 +252,9 @@
         </div>
         <button class="admin-btn" onclick="openAdmin()">Admin</button>
     </div>
+    <footer style="text-align: center; padding: 20px; color: #888; font-size: 0.8em; margin-top: 40px;">
+        <p>&copy; 2025 Minecraft Netherite Shop. All rights reserved. | Powered by Diamonds</p>
+    </footer>
     <div class="modal" id="adminModal">
         <div class="modal-content">
             <span class="close" onclick="closeAdmin()">&times;</span>

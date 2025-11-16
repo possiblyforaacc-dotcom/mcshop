@@ -1,14 +1,15 @@
 // Generate moving stars
 function createStars() {
     const starsContainer = document.getElementById('stars');
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 200; i++) {
         const star = document.createElement('div');
         star.className = 'star';
         star.style.left = Math.random() * 100 + '%';
         star.style.top = Math.random() * 100 + '%';
-        star.style.width = Math.random() * 3 + 1 + 'px';
+        star.style.width = Math.random() * 4 + 1 + 'px';
         star.style.height = star.style.width;
-        star.style.animationDelay = Math.random() * 2 + 's';
+        star.style.animationDelay = Math.random() * 3 + 's';
+        star.style.animationDuration = (Math.random() * 2 + 2) + 's';
         starsContainer.appendChild(star);
     }
 }
@@ -26,9 +27,10 @@ const items = [
 // Display shop items
 function displayShop() {
     const shop = document.getElementById('shop');
-    items.forEach(item => {
+    items.forEach((item, index) => {
         const itemDiv = document.createElement('div');
         itemDiv.className = 'item';
+        itemDiv.style.animationDelay = (index * 0.1) + 's';
         const stockText = item.stock > 0 ? `Stock: ${item.stock}` : 'Out of Stock';
         const stockClass = item.stock > 0 ? 'in-stock' : 'out-stock';
         itemDiv.innerHTML = `
