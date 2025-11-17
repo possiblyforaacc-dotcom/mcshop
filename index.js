@@ -26,7 +26,8 @@ let items = JSON.parse(localStorage.getItem('shopItems')) || [
     { name: 'Elytra', price: 30, description: 'Wings for flying through the skies', stock: 3 },
     { name: 'Fireworks x64', price: 15, description: '64 Fireworks for epic celebrations', stock: Infinity },
     { name: 'Dragon Head 1x', price: 38, description: 'Rare dragon head trophy', stock: 3 },
-    { name: 'Ancient Debris (Trade-in)', price: '10 diamonds = 3 Ancient Debris', description: 'Trade in your diamonds for Ancient Debris! Rate: 10 diamonds = 3 Ancient Debris', stock: Infinity, tradeIn: true }
+    { name: 'Ancient Debris (Trade-in)', price: '10 diamonds = 3 Ancient Debris', description: 'Trade in your diamonds for Ancient Debris! Rate: 10 diamonds = 3 Ancient Debris', stock: Infinity, tradeIn: true },
+    { name: 'Netherite Ingots (Trade-in)', price: '15 diamonds = 3 Netherite Ingots', description: 'Trade in your diamonds for Netherite Ingots! Rate: 15 diamonds = 3 Netherite Ingots', stock: Infinity, tradeIn: true }
 ];
 
 // Basket system

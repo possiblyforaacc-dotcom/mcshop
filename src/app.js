@@ -183,13 +183,21 @@ function sendDiscordNotification(ticket) {
 function calculateTotalDiamonds(ticket) {
     // Check if this is a trade-in request
     if (ticket.item.includes('Trade-in') || ticket.message.includes('TRADE-IN REQUEST')) {
-        // For trade-ins: 10 diamonds = 3 Ancient Debris
         // Extract number of diamonds from message
         const diamondMatch = ticket.message.match(/(\d+)\s*diamonds?/i);
         if (diamondMatch) {
             const diamonds = parseInt(diamondMatch[1]);
-            const ancientDebris = Math.floor(diamonds / 10) * 3;
-            return `${diamonds} diamonds → ${ancientDebris} Ancient Debris`;
+
+            // Check which trade-in item this is
+            if (ticket.item.includes('Ancient Debris')) {
+                // 10 diamonds = 3 Ancient Debris
+                const ancientDebris = Math.floor(diamonds / 10) * 3;
+                return `${diamonds} diamonds → ${ancientDebris} Ancient Debris`;
+            } else if (ticket.item.includes('Netherite Ingots')) {
+                // 15 diamonds = 3 Netherite Ingots
+                const netheriteIngots = Math.floor(diamonds / 15) * 3;
+                return `${diamonds} diamonds → ${netheriteIngots} Netherite Ingots`;
+            }
         }
         return 'Trade-in: Specify diamond amount';
     }
