@@ -503,6 +503,7 @@ function hideAllAdminSections() {
     document.getElementById('analyticsSection').style.display = 'none';
     document.getElementById('bulkOperationsSection').style.display = 'none';
     document.getElementById('saleManagerSection').style.display = 'none';
+    document.getElementById('promoCodesSection').style.display = 'none';
     document.getElementById('ticketsSection').style.display = 'none';
     document.getElementById('restockSection').style.display = 'none';
 }
@@ -709,12 +710,51 @@ function addToShoppingHistory(orderData) {
 }
 
 // Promotional codes system
-const promoCodes = {
-    'WELCOME10': { discount: 10, type: 'percentage', description: '10% off welcome discount' },
-    'SAVE5': { discount: 5, type: 'fixed', description: 'Save 5 diamonds' },
-    'MEGASALE': { discount: 25, type: 'percentage', description: 'Mega sale 25% off' },
-    'LOYALTY': { discount: 15, type: 'percentage', description: 'Loyalty discount' }
+let promoCodes = JSON.parse(localStorage.getItem('promoCodes')) || {
+    'WELCOME10': {
+        discount: 10,
+        type: 'percentage',
+        description: '10% off welcome discount',
+        usageLimit: null, // null = unlimited
+        usedCount: 0,
+        applicableItems: null, // null = all items
+        active: true,
+        created: new Date().toISOString()
+    },
+    'SAVE5': {
+        discount: 5,
+        type: 'fixed',
+        description: 'Save 5 diamonds',
+        usageLimit: null,
+        usedCount: 0,
+        applicableItems: null,
+        active: true,
+        created: new Date().toISOString()
+    },
+    'MEGASALE': {
+        discount: 25,
+        type: 'percentage',
+        description: 'Mega sale 25% off',
+        usageLimit: null,
+        usedCount: 0,
+        applicableItems: null,
+        active: true,
+        created: new Date().toISOString()
+    },
+    'LOYALTY': {
+        discount: 15,
+        type: 'percentage',
+        description: 'Loyalty discount',
+        usageLimit: null,
+        usedCount: 0,
+        applicableItems: null,
+        active: true,
+        created: new Date().toISOString()
+    }
 };
+
+// Promo code usage history
+let promoCodeUsage = JSON.parse(localStorage.getItem('promoCodeUsage')) || [];
 
 let appliedPromoCode = null;
 
@@ -726,8 +766,35 @@ function applyPromoCode(code) {
         return false;
     }
 
-    appliedPromoCode = promoCodes[upperCode];
-    showToast(`Applied: ${appliedPromoCode.description}`, 'success');
+    const promo = promoCodes[upperCode];
+
+    // Check if promo code is active
+    if (!promo.active) {
+        showToast('This promo code is no longer active', 'error');
+        return false;
+    }
+
+    // Check usage limit
+    if (promo.usageLimit !== null && promo.usedCount >= promo.usageLimit) {
+        showToast('This promo code has reached its usage limit', 'error');
+        return false;
+    }
+
+    // Check if applicable to current basket items
+    if (promo.applicableItems !== null) {
+        const hasApplicableItems = basket.some(basketItem => {
+            if (basketItem.tradeInType) return false; // Skip trade-ins
+            return promo.applicableItems.includes(basketItem.name);
+        });
+
+        if (!hasApplicableItems) {
+            showToast('This promo code is not applicable to your current basket items', 'error');
+            return false;
+        }
+    }
+
+    appliedPromoCode = promo;
+    showToast(`Applied: ${promo.description}`, 'success');
     displayBasket(); // Refresh to show discount
     return true;
 }
@@ -750,6 +817,269 @@ function calculateDiscountedTotal() {
     }
 
     return Math.round(total);
+}
+
+// Promo code management functions
+function savePromoCodes() {
+    localStorage.setItem('promoCodes', JSON.stringify(promoCodes));
+}
+
+function logPromoCodeUsage(code, orderData) {
+    const usage = {
+        code: code,
+        timestamp: new Date().toISOString(),
+        orderData: orderData,
+        discountApplied: appliedPromoCode
+    };
+
+    promoCodeUsage.push(usage);
+    localStorage.setItem('promoCodeUsage', JSON.stringify(promoCodeUsage));
+
+    // Increment usage count
+    if (promoCodes[code]) {
+        promoCodes[code].usedCount++;
+
+        // Deactivate if usage limit reached
+        if (promoCodes[code].usageLimit !== null && promoCodes[code].usedCount >= promoCodes[code].usageLimit) {
+            promoCodes[code].active = false;
+        }
+
+        savePromoCodes();
+    }
+}
+
+function createPromoCode(code, discount, type, description, usageLimit = null, applicableItems = null) {
+    const upperCode = code.toUpperCase().trim();
+
+    promoCodes[upperCode] = {
+        discount: discount,
+        type: type,
+        description: description,
+        usageLimit: usageLimit,
+        usedCount: 0,
+        applicableItems: applicableItems,
+        active: true,
+        created: new Date().toISOString()
+    };
+
+    savePromoCodes();
+    showToast(`Promo code ${upperCode} created!`, 'success');
+}
+
+function deactivatePromoCode(code) {
+    const upperCode = code.toUpperCase().trim();
+    if (promoCodes[upperCode]) {
+        promoCodes[upperCode].active = false;
+        savePromoCodes();
+        showToast(`Promo code ${upperCode} deactivated!`, 'success');
+    }
+}
+
+function getPromoCodeStats(code) {
+    const upperCode = code.toUpperCase().trim();
+    const promo = promoCodes[upperCode];
+    if (!promo) return null;
+
+    const usageHistory = promoCodeUsage.filter(usage => usage.code === upperCode);
+
+    return {
+        ...promo,
+        usageHistory: usageHistory,
+        totalDiscountGiven: usageHistory.reduce((sum, usage) => sum + (usage.discountApplied ? calculateDiscountAmount(usage.discountApplied, usage.orderData.total) : 0), 0)
+    };
+}
+
+function calculateDiscountAmount(promo, total) {
+    if (promo.type === 'percentage') {
+        return total * (promo.discount / 100);
+    } else if (promo.type === 'fixed') {
+        return Math.min(promo.discount, total);
+    }
+    return 0;
+}
+
+// Admin promo code management functions
+function showPromoCodes() {
+    // Hide all sections
+    document.getElementById('analyticsSection').style.display = 'none';
+    document.getElementById('bulkOperationsSection').style.display = 'none';
+    document.getElementById('saleManagerSection').style.display = 'none';
+    document.getElementById('promoCodesSection').style.display = 'none';
+    document.getElementById('ticketsSection').style.display = 'none';
+    document.getElementById('restockSection').style.display = 'none';
+
+    // Show promo codes section
+    document.getElementById('promoCodesSection').style.display = 'block';
+    displayExistingPromoCodes();
+}
+
+function createNewPromoCode() {
+    const code = document.getElementById('promoCode').value.trim().toUpperCase();
+    const discount = parseInt(document.getElementById('promoDiscount').value);
+    const type = document.getElementById('promoType').value;
+    const description = document.getElementById('promoDescription').value.trim();
+    const usageLimit = document.getElementById('promoUsageLimit').value ? parseInt(document.getElementById('promoUsageLimit').value) : null;
+
+    // Get selected applicable items
+    const applicableItemsSelect = document.getElementById('promoApplicableItems');
+    const applicableItems = Array.from(applicableItemsSelect.selectedOptions).map(option => option.value);
+    const applicableItemsFinal = applicableItems.length > 0 ? applicableItems : null;
+
+    if (!code || !discount || !description) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+    }
+
+    if (promoCodes[code]) {
+        showToast('Promo code already exists', 'error');
+        return;
+    }
+
+    if (type === 'percentage' && discount > 100) {
+        showToast('Percentage discount cannot exceed 100%', 'error');
+        return;
+    }
+
+    createPromoCode(code, discount, type, description, usageLimit, applicableItemsFinal);
+
+    // Clear form
+    document.getElementById('promoCode').value = '';
+    document.getElementById('promoDiscount').value = '';
+    document.getElementById('promoDescription').value = '';
+    document.getElementById('promoUsageLimit').value = '';
+    document.getElementById('promoApplicableItems').selectedIndex = -1;
+
+    displayExistingPromoCodes();
+}
+
+function displayExistingPromoCodes() {
+    const container = document.getElementById('existingPromoCodes');
+    container.innerHTML = '';
+
+    if (Object.keys(promoCodes).length === 0) {
+        container.innerHTML = '<p>No promo codes created yet.</p>';
+        return;
+    }
+
+    Object.entries(promoCodes).forEach(([code, promo]) => {
+        const promoCard = document.createElement('div');
+        promoCard.className = 'card';
+        promoCard.style.marginBottom = '10px';
+
+        const statusColor = promo.active ? 'var(--galaxy-accent)' : '#F44336';
+        const statusText = promo.active ? 'Active' : 'Inactive';
+
+        let applicableItemsText = 'All items';
+        if (promo.applicableItems && promo.applicableItems.length > 0) {
+            applicableItemsText = promo.applicableItems.length === 1 ?
+                promo.applicableItems[0] :
+                `${promo.applicableItems.length} specific items`;
+        }
+
+        promoCard.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: var(--galaxy-accent);">${code}</h4>
+                    <p style="margin: 0 0 5px 0; color: var(--text-secondary);">${promo.description}</p>
+                    <small style="color: var(--text-secondary);">
+                        ${promo.discount}${promo.type === 'percentage' ? '%' : ' diamonds'} off •
+                        Used: ${promo.usedCount}${promo.usageLimit ? `/${promo.usageLimit}` : ''} •
+                        ${applicableItemsText}
+                    </small>
+                </div>
+                <div style="text-align: right;">
+                    <div style="color: ${statusColor}; font-weight: bold; margin-bottom: 5px;">${statusText}</div>
+                    <div style="display: flex; gap: 5px;">
+                        ${promo.active ?
+                            `<button class="btn-danger btn-small" onclick="deactivatePromoCode('${code}')">Deactivate</button>` :
+                            `<button class="btn-success btn-small" onclick="activatePromoCode('${code}')">Activate</button>`
+                        }
+                        <button class="btn-secondary btn-small" onclick="viewPromoStats('${code}')">Stats</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(promoCard);
+    });
+}
+
+function activatePromoCode(code) {
+    if (promoCodes[code]) {
+        promoCodes[code].active = true;
+        savePromoCodes();
+        displayExistingPromoCodes();
+        showToast(`Promo code ${code} activated!`, 'success');
+    }
+}
+
+function viewPromoStats(code) {
+    const stats = getPromoCodeStats(code);
+    if (!stats) {
+        showToast('Promo code not found', 'error');
+        return;
+    }
+
+    const statsHTML = `
+        <div style="padding: 20px; background: rgba(139, 92, 246, 0.1); border-radius: 10px; margin: 10px 0;">
+            <h4 style="margin-top: 0; color: var(--galaxy-accent);">${code} Statistics</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
+                <div>
+                    <strong>Total Uses:</strong><br>
+                    ${stats.usedCount}
+                </div>
+                <div>
+                    <strong>Usage Limit:</strong><br>
+                    ${stats.usageLimit || 'Unlimited'}
+                </div>
+                <div>
+                    <strong>Status:</strong><br>
+                    <span style="color: ${stats.active ? 'var(--galaxy-accent)' : '#F44336'};">${stats.active ? 'Active' : 'Inactive'}</span>
+                </div>
+                <div>
+                    <strong>Total Discount Given:</strong><br>
+                    ${stats.totalDiscountGiven} diamonds
+                </div>
+            </div>
+            ${stats.usageHistory.length > 0 ? `
+                <div style="margin-top: 20px;">
+                    <h5 style="margin-bottom: 10px;">Recent Usage:</h5>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        ${stats.usageHistory.slice(-5).reverse().map(usage => `
+                            <div style="padding: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 5px; margin-bottom: 5px;">
+                                <small>${new Date(usage.timestamp).toLocaleString()} - ${usage.discountApplied.discount}${usage.discountApplied.type === 'percentage' ? '%' : ' diamonds'} off</small>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+        </div>
+    `;
+
+    // Create a temporary modal for stats
+    const statsModal = document.createElement('div');
+    statsModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 10000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    `;
+    statsModal.innerHTML = `
+        <div style="background: var(--galaxy-dark); padding: 20px; border-radius: 15px; max-width: 600px; width: 90%; max-height: 80%; overflow-y: auto; border: 2px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: var(--galaxy-accent);">Promo Code Statistics</h3>
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: none; border: none; color: var(--text-primary); font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            ${statsHTML}
+        </div>
+    `;
+    document.body.appendChild(statsModal);
 }
 
 // Enhanced displayShop with favorites and recently viewed
@@ -823,7 +1153,7 @@ function displayShop() {
             ${rating > 0 ? `<div class="item-rating"><div class="stars">${starsHTML}</div><span class="rating-text">${rating} (${reviewCount} reviews)</span></div>` : ''}
             <div class="item-actions">
                 ${buttonHTML}
-                <button class="btn-secondary" onclick="openReviewModal('${item.name}')" style="margin-top: 10px;">⭐ Review</button>
+                <button class="btn-secondary" onclick="openReviewModal('${item.name}')" style="margin-top: 10px; font-size: 0.8em;">⭐ Review</button>
             </div>
         `;
 

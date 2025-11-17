@@ -77,6 +77,19 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
     tickets.push(ticket);
     localStorage.setItem('tickets', JSON.stringify(tickets));
 
+    // Log promo code usage if one was applied
+    if (appliedPromoCode) {
+        logPromoCodeUsage(Object.keys(promoCodes).find(code => promoCodes[code] === appliedPromoCode), {
+            ticketId: ticket.id,
+            customer: ticket.name,
+            discord: ticket.discord,
+            total: getBasketTotal(),
+            basket: basketData
+        });
+        appliedPromoCode = null; // Reset applied promo code
+        displayBasket(); // Refresh basket to remove promo code
+    }
+
     // Send Discord webhook notification
     sendDiscordNotification(ticket);
 
