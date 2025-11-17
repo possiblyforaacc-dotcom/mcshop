@@ -83,9 +83,15 @@ function clearBasket() {
 
 function getBasketTotal() {
     return basket.reduce((total, basketItem) => {
-        const item = items.find(i => i.name === basketItem.name);
-        if (item && !item.tradeIn) {
-            return total + (item.price * basketItem.quantity);
+        if (basketItem.diamondsNeeded) {
+            // New trade-in format
+            return total + basketItem.diamondsNeeded;
+        } else {
+            // Regular items or legacy trade-ins
+            const item = items.find(i => i.name === basketItem.name);
+            if (item && !item.tradeIn) {
+                return total + (item.price * basketItem.quantity);
+            }
         }
         return total;
     }, 0);
@@ -107,17 +113,27 @@ function displayBasket() {
 
     basket.forEach((basketItem, index) => {
         const item = items.find(i => i.name === basketItem.name);
-        const itemTotal = item && !item.tradeIn ? item.price * basketItem.quantity : 0;
-        total += itemTotal;
+        let displayText = '';
+        let itemTotal = 0;
+
+        if (basketItem.tradeInType) {
+            // New trade-in format
+            displayText = `Quantity: ${basketItem.quantity} ${basketItem.tradeInType} = ${basketItem.diamondsNeeded} diamonds`;
+        } else if (item && !item.tradeIn) {
+            // Regular item
+            itemTotal = item.price * basketItem.quantity;
+            total += itemTotal;
+            displayText = `Quantity: <input type="number" value="${basketItem.quantity}" min="1" onchange="updateBasketQuantity(${index}, parseInt(this.value))" style="width: 60px;"> × ${item.price} = ${itemTotal} diamonds`;
+        } else {
+            // Legacy trade-in
+            displayText = `Quantity: ${basketItem.quantity} (Trade-in item)`;
+        }
 
         basketHTML += `
             <div class="basket-item">
                 <div class="basket-item-info">
                     <strong>${basketItem.name}</strong><br>
-                    <small>Quantity:
-                        <input type="number" value="${basketItem.quantity}" min="1" onchange="updateBasketQuantity(${index}, parseInt(this.value))" style="width: 60px;">
-                        ${item && !item.tradeIn ? `× ${item.price} = ${itemTotal} diamonds` : '(Trade-in item)'}
-                    </small>
+                    <small>${displayText}</small>
                 </div>
                 <button class="btn-danger btn-small" onclick="removeFromBasket(${index})">Remove</button>
             </div>
@@ -194,13 +210,19 @@ function checkout() {
     let totalDiamonds = 0;
 
     basket.forEach(basketItem => {
-        const item = items.find(i => i.name === basketItem.name);
-        if (item && !item.tradeIn) {
-            const itemTotal = item.price * basketItem.quantity;
-            totalDiamonds += itemTotal;
-            basketSummary += `${basketItem.name} × ${basketItem.quantity} = ${itemTotal} diamonds\n`;
-        } else if (item && item.tradeIn) {
-            basketSummary += `${basketItem.name} × ${basketItem.quantity} (Trade-in)\n`;
+        if (basketItem.tradeInType) {
+            // New trade-in format
+            basketSummary += `${basketItem.name}: ${basketItem.quantity} ${basketItem.tradeInType} = ${basketItem.diamondsNeeded} diamonds\n`;
+        } else {
+            // Regular items or legacy trade-ins
+            const item = items.find(i => i.name === basketItem.name);
+            if (item && !item.tradeIn) {
+                const itemTotal = item.price * basketItem.quantity;
+                totalDiamonds += itemTotal;
+                basketSummary += `${basketItem.name} × ${basketItem.quantity} = ${itemTotal} diamonds\n`;
+            } else if (item && item.tradeIn) {
+                basketSummary += `${basketItem.name} × ${basketItem.quantity} (Trade-in)\n`;
+            }
         }
     });
 

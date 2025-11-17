@@ -2218,21 +2218,76 @@
             font-size: 0.9em;
         }
 
-        /* Trade-in Calculator Styles */
-        .trade-in-calculator {
+        /* Trade-in Selection Styles */
+        .trade-in-selection {
             text-align: center;
             padding: 20px 0;
         }
-        .calculator-input {
-            margin-bottom: 20px;
+        .trade-in-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
-        .calculator-input label {
+        .trade-option {
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .trade-option:hover {
+            transform: translateY(-5px);
+            border-color: var(--galaxy-accent);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+        }
+        .trade-option.selected {
+            border-color: var(--galaxy-accent);
+            background: rgba(139, 92, 246, 0.2);
+        }
+        .option-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .trade-option h3 {
+            color: var(--galaxy-accent);
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+        .trade-option p {
+            color: var(--text-secondary);
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        .option-selected {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--galaxy-accent);
+            color: var(--galaxy-dark);
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .trade-option.selected .option-selected {
+            opacity: 1;
+        }
+        .quantity-selection {
+            margin-bottom: 30px;
+        }
+        .quantity-selection label {
             display: block;
             margin-bottom: 10px;
             font-weight: 600;
             color: var(--text-primary);
+            font-size: 1.1em;
         }
-        .calculator-input input {
+        .quantity-selection input {
             width: 200px;
             padding: 12px;
             border: 2px solid var(--border-color);
@@ -2241,20 +2296,20 @@
             color: var(--text-primary);
             font-size: 1.1em;
             text-align: center;
+            margin-bottom: 15px;
         }
-        .calculator-result {
-            margin: 20px 0;
+        .cost-display {
             padding: 15px;
             background: rgba(139, 92, 246, 0.1);
             border-radius: 10px;
             border: 1px solid var(--border-color);
         }
-        .calculator-result p {
+        .cost-display p {
             margin: 0;
             font-size: 1.1em;
             color: var(--text-primary);
         }
-        .calculator-result .result-highlight {
+        .cost-highlight {
             color: var(--galaxy-accent);
             font-weight: bold;
             font-size: 1.2em;
@@ -2518,21 +2573,40 @@
         </div>
     </div>
 
-    <!-- Trade-in Calculator Modal -->
+    <!-- Trade-in Selection Modal -->
     <div class="modal" id="tradeInModal">
         <div class="modal-content">
             <span class="close" onclick="closeTradeInModal()">&times;</span>
-            <h2 id="tradeInTitle">Trade-in Calculator</h2>
-            <div class="trade-in-calculator">
-                <div class="calculator-input">
-                    <label for="tradeInDiamonds">How many diamonds do you want to trade?</label>
-                    <input type="number" id="tradeInDiamonds" min="1" placeholder="Enter diamond amount" oninput="calculateTradeIn()">
+            <h2>Trade-in Selection</h2>
+            <div class="trade-in-selection">
+                <p style="text-align: center; margin-bottom: 20px; color: var(--text-secondary);">Select what you want to receive and we'll calculate the diamonds needed!</p>
+
+                <div class="trade-in-options">
+                    <div class="trade-option" onclick="selectTradeInItem('Ancient Debris')">
+                        <div class="option-icon">🏺</div>
+                        <h3>Ancient Debris</h3>
+                        <p>Rate: 10 diamonds = 3 Ancient Debris</p>
+                        <div class="option-selected" id="ancient-selected">Select</div>
+                    </div>
+
+                    <div class="trade-option" onclick="selectTradeInItem('Netherite Ingots')">
+                        <div class="option-icon">🔩</div>
+                        <h3>Netherite Ingots</h3>
+                        <p>Rate: 15 diamonds = 3 Netherite Ingots</p>
+                        <div class="option-selected" id="netherite-selected">Select</div>
+                    </div>
                 </div>
-                <div class="calculator-result" id="calculatorResult">
-                    <p>Enter the number of diamonds above to see what you'll receive!</p>
+
+                <div class="quantity-selection" id="quantitySection" style="display: none;">
+                    <label for="tradeInQuantity">How many do you want?</label>
+                    <input type="number" id="tradeInQuantity" min="1" placeholder="Enter quantity" oninput="calculateTradeInCost()">
+                    <div class="cost-display" id="costDisplay">
+                        <p>Select a quantity above to see the diamond cost!</p>
+                    </div>
                 </div>
+
                 <div class="calculator-actions">
-                    <button class="btn-primary" id="proceedTradeInBtn" onclick="proceedWithTradeIn()" disabled>Proceed with Trade-in</button>
+                    <button class="btn-primary" id="addToBasketBtn" onclick="addTradeInToBasket()" disabled>Add to Basket</button>
                     <button class="btn-secondary" onclick="closeTradeInModal()">Cancel</button>
                 </div>
             </div>

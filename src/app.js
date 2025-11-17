@@ -144,13 +144,19 @@ function sendDiscordNotification(ticket) {
         let totalDiamonds = 0;
 
         ticket.basket.forEach(item => {
-            const shopItem = items.find(i => i.name === item.name);
-            if (shopItem && !shopItem.tradeIn) {
-                const itemTotal = shopItem.price * item.quantity;
-                totalDiamonds += itemTotal;
-                basketSummary += `${item.name} × ${item.quantity} = ${itemTotal} diamonds\n`;
-            } else if (shopItem && shopItem.tradeIn) {
-                basketSummary += `${item.name} × ${item.quantity} (Trade-in)\n`;
+            if (item.tradeInType) {
+                // New trade-in format
+                basketSummary += `${item.name}: ${item.quantity} ${item.tradeInType} = ${item.diamondsNeeded} diamonds\n`;
+            } else {
+                // Regular items or legacy trade-ins
+                const shopItem = items.find(i => i.name === item.name);
+                if (shopItem && !shopItem.tradeIn) {
+                    const itemTotal = shopItem.price * item.quantity;
+                    totalDiamonds += itemTotal;
+                    basketSummary += `${item.name} × ${item.quantity} = ${itemTotal} diamonds\n`;
+                } else if (shopItem && shopItem.tradeIn) {
+                    basketSummary += `${item.name} × ${item.quantity} (Trade-in)\n`;
+                }
             }
         });
 
@@ -260,70 +266,120 @@ function submitTicket(itemName) {
     document.getElementById('ticketForm').scrollIntoView({ behavior: 'smooth' });
 }
 
-let currentTradeInItem = '';
+let selectedTradeInItem = '';
 
-function submitTradeIn(itemName) {
-    currentTradeInItem = itemName;
-    document.getElementById('tradeInTitle').textContent = itemName;
+function submitTradeIn() {
     document.getElementById('tradeInModal').style.display = 'flex';
-    document.getElementById('tradeInDiamonds').value = '';
-    document.getElementById('calculatorResult').innerHTML = '<p>Enter the number of diamonds above to see what you\'ll receive!</p>';
-    document.getElementById('proceedTradeInBtn').disabled = true;
+    resetTradeInSelection();
 }
 
 function closeTradeInModal() {
     document.getElementById('tradeInModal').style.display = 'none';
-    currentTradeInItem = '';
+    resetTradeInSelection();
 }
 
-function calculateTradeIn() {
-    const diamonds = parseInt(document.getElementById('tradeInDiamonds').value) || 0;
-    const resultDiv = document.getElementById('calculatorResult');
-    const proceedBtn = document.getElementById('proceedTradeInBtn');
+function resetTradeInSelection() {
+    selectedTradeInItem = '';
+    document.querySelectorAll('.trade-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    document.getElementById('quantitySection').style.display = 'none';
+    document.getElementById('tradeInQuantity').value = '';
+    document.getElementById('costDisplay').innerHTML = '<p>Select a quantity above to see the diamond cost!</p>';
+    document.getElementById('addToBasketBtn').disabled = true;
+}
 
-    if (diamonds <= 0) {
-        resultDiv.innerHTML = '<p>Enter the number of diamonds above to see what you\'ll receive!</p>';
-        proceedBtn.disabled = true;
+function selectTradeInItem(itemName) {
+    selectedTradeInItem = itemName;
+
+    // Update UI
+    document.querySelectorAll('.trade-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+
+    // Find and select the clicked option
+    const options = document.querySelectorAll('.trade-option');
+    options.forEach(option => {
+        if (option.querySelector('h3').textContent === itemName) {
+            option.classList.add('selected');
+        }
+    });
+
+    // Show quantity section
+    document.getElementById('quantitySection').style.display = 'block';
+    document.getElementById('tradeInQuantity').focus();
+}
+
+function calculateTradeInCost() {
+    const quantity = parseInt(document.getElementById('tradeInQuantity').value) || 0;
+    const costDisplay = document.getElementById('costDisplay');
+    const addBtn = document.getElementById('addToBasketBtn');
+
+    if (quantity <= 0) {
+        costDisplay.innerHTML = '<p>Select a quantity above to see the diamond cost!</p>';
+        addBtn.disabled = true;
         return;
     }
 
-    let result = '';
-    let canProceed = false;
+    let diamondsNeeded = 0;
+    let itemName = '';
 
-    if (currentTradeInItem.includes('Ancient Debris')) {
-        const ancientDebris = Math.floor(diamonds / 10) * 3;
-        const remainder = diamonds % 10;
-        result = `<p>You'll receive: <span class="result-highlight">${ancientDebris} Ancient Debris</span></p>`;
-        if (remainder > 0) {
-            result += `<p><small>You need ${10 - remainder} more diamonds for additional Ancient Debris</small></p>`;
-        }
-        canProceed = ancientDebris > 0;
-    } else if (currentTradeInItem.includes('Netherite Ingots')) {
-        const netheriteIngots = Math.floor(diamonds / 15) * 3;
-        const remainder = diamonds % 15;
-        result = `<p>You'll receive: <span class="result-highlight">${netheriteIngots} Netherite Ingots</span></p>`;
-        if (remainder > 0) {
-            result += `<p><small>You need ${15 - remainder} more diamonds for additional Netherite Ingots</small></p>`;
-        }
-        canProceed = netheriteIngots > 0;
+    if (selectedTradeInItem === 'Ancient Debris') {
+        // 10 diamonds = 3 Ancient Debris, so for X Ancient Debris: (X / 3) * 10 diamonds
+        diamondsNeeded = Math.ceil((quantity / 3) * 10);
+        itemName = 'Ancient Debris';
+    } else if (selectedTradeInItem === 'Netherite Ingots') {
+        // 15 diamonds = 3 Netherite Ingots, so for X Netherite Ingots: (X / 3) * 15 diamonds
+        diamondsNeeded = Math.ceil((quantity / 3) * 15);
+        itemName = 'Netherite Ingots';
     }
 
-    resultDiv.innerHTML = result;
-    proceedBtn.disabled = !canProceed;
+    costDisplay.innerHTML = `
+        <p>You want: <span class="cost-highlight">${quantity} ${itemName}</span></p>
+        <p>Diamonds needed: <span class="cost-highlight">${diamondsNeeded} diamonds</span></p>
+        <p><small>This ensures you get at least the quantity you requested</small></p>
+    `;
+
+    addBtn.disabled = false;
 }
 
-function proceedWithTradeIn() {
-    const diamonds = parseInt(document.getElementById('tradeInDiamonds').value);
+function addTradeInToBasket() {
+    const quantity = parseInt(document.getElementById('tradeInQuantity').value);
+    if (!selectedTradeInItem || quantity <= 0) return;
+
+    // Calculate diamonds needed
+    let diamondsNeeded = 0;
+    let itemName = '';
+
+    if (selectedTradeInItem === 'Ancient Debris') {
+        diamondsNeeded = Math.ceil((quantity / 3) * 10);
+        itemName = 'Ancient Debris (Trade-in)';
+    } else if (selectedTradeInItem === 'Netherite Ingots') {
+        diamondsNeeded = Math.ceil((quantity / 3) * 15);
+        itemName = 'Netherite Ingots (Trade-in)';
+    }
+
+    // Add to basket with special trade-in data
+    const basketItem = {
+        name: itemName,
+        quantity: quantity,
+        diamondsNeeded: diamondsNeeded,
+        tradeInType: selectedTradeInItem
+    };
+
+    // Check if this trade-in type is already in basket
+    const existingIndex = basket.findIndex(item => item.name === itemName);
+    if (existingIndex >= 0) {
+        basket[existingIndex] = basketItem;
+    } else {
+        basket.push(basketItem);
+    }
+
+    saveBasket();
+    displayBasket();
     closeTradeInModal();
 
-    // Fill the form with trade-in details
-    document.getElementById('item').value = currentTradeInItem;
-    document.getElementById('quantity').value = '1'; // Not used for trade-ins
-    const messageField = document.getElementById('message');
-    messageField.value = `TRADE-IN REQUEST: ${diamonds} diamonds\n\n` + messageField.value;
-
-    // Scroll to form
-    document.getElementById('ticketForm').scrollIntoView({ behavior: 'smooth' });
+    showToast(`Added ${quantity} ${selectedTradeInItem} trade-in to basket!`, 'success');
 }
 
 // Admin functions
@@ -392,11 +448,17 @@ function displayTickets() {
         if (isBasketOrder) {
             basketDetails = '<strong>Basket Contents:</strong><br>';
             ticket.basket.forEach(item => {
-                const shopItem = items.find(i => i.name === item.name);
-                if (shopItem && !shopItem.tradeIn) {
-                    basketDetails += `${item.name} × ${item.quantity} = ${shopItem.price * item.quantity} diamonds<br>`;
-                } else if (shopItem && shopItem.tradeIn) {
-                    basketDetails += `${item.name} × ${item.quantity} (Trade-in)<br>`;
+                if (item.tradeInType) {
+                    // New trade-in format
+                    basketDetails += `${item.name}: ${item.quantity} ${item.tradeInType} = ${item.diamondsNeeded} diamonds<br>`;
+                } else {
+                    // Regular items or legacy trade-ins
+                    const shopItem = items.find(i => i.name === item.name);
+                    if (shopItem && !shopItem.tradeIn) {
+                        basketDetails += `${item.name} × ${item.quantity} = ${shopItem.price * item.quantity} diamonds<br>`;
+                    } else if (shopItem && shopItem.tradeIn) {
+                        basketDetails += `${item.name} × ${item.quantity} (Trade-in)<br>`;
+                    }
                 }
             });
         }
@@ -440,9 +502,15 @@ function completeOrder(id) {
     ticket.status = 'Completed';
     ticket.completedAt = new Date().toISOString();
 
-    // Reduce stock for basket orders
+    // Reduce stock for basket orders (only for regular items, not trade-ins)
     if (ticket.basket && ticket.basket.length > 0) {
         ticket.basket.forEach(basketItem => {
+            // Skip trade-in items - they don't reduce stock
+            if (basketItem.tradeInType) {
+                console.log(`Skipping stock reduction for trade-in: ${basketItem.name}`);
+                return;
+            }
+
             const shopItem = items.find(i => i.name === basketItem.name);
             if (shopItem && !shopItem.tradeIn && shopItem.stock > 0) {
                 shopItem.stock = Math.max(0, shopItem.stock - basketItem.quantity);
