@@ -18,6 +18,42 @@
             --border-color: rgba(139, 92, 246, 0.3);
             --shadow-color: rgba(0, 0, 0, 0.5);
         }
+
+        /* Dark mode (default) */
+        body.dark-mode {
+            --galaxy-purple: #2D1B69;
+            --galaxy-blue: #1E3A8A;
+            --galaxy-dark: #0F0F23;
+            --galaxy-accent: #8B5CF6;
+            --galaxy-glow: #A855F7;
+            --galaxy-star: #F59E0B;
+            --text-primary: #F8FAFC;
+            --text-secondary: #CBD5E1;
+            --border-color: rgba(139, 92, 246, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Light mode */
+        body.light-mode {
+            --galaxy-purple: #E8EAF6;
+            --galaxy-blue: #C5CAE9;
+            --galaxy-dark: #FAFAFA;
+            --galaxy-accent: #5C6BC0;
+            --galaxy-glow: #7986CB;
+            --galaxy-star: #FFD54F;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --border-color: rgba(92, 107, 192, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .galaxy {
+            background: radial-gradient(circle at center, #E3F2FD 0%, #FAFAFA 50%, #FFFFFF 100%);
+        }
+
+        body.light-mode .stars {
+            opacity: 0.3;
+        }
         body {
             margin: 0;
             padding: 0;
@@ -431,6 +467,22 @@
             font-size: 1.4em;
             text-shadow: 0 0 10px #FFD700;
         }
+        .item-header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+        .favorite-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            padding: 5px;
+        }
+        .favorite-btn:hover {
+            transform: scale(1.2);
+        }
         .item p {
             margin: 10px 0;
             color: #E0E0E0;
@@ -574,6 +626,34 @@
         .admin-btn:hover {
             transform: scale(1.1);
             box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--galaxy-accent), var(--galaxy-glow));
+            border: 2px solid transparent;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            color: var(--galaxy-dark);
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+        .theme-toggle.light {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
         }
         .modal {
             display: none;
@@ -2321,6 +2401,66 @@
             justify-content: center;
         }
 
+        /* Feedback Modal Styles */
+        .feedback-form {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .rating-section {
+            margin-bottom: 30px;
+        }
+        .rating-section label {
+            display: block;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1.1em;
+        }
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .star {
+            font-size: 2em;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            opacity: 0.3;
+        }
+        .star:hover, .star.active {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+        .star.active ~ .star {
+            opacity: 0.3;
+        }
+        .feedback-input {
+            margin-bottom: 30px;
+        }
+        .feedback-input label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .feedback-input textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 1em;
+            resize: vertical;
+            min-height: 80px;
+        }
+        .feedback-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
         /* Admin Statistics */
         .stat-card {
             background: rgba(139, 92, 246, 0.1);
@@ -2548,9 +2688,17 @@
                     <p>Quick ticket response and delivery system for your convenience.</p>
                 </div>
             </div>
+
+            <!-- Customer Feedback Section -->
+            <div class="feedback-section" style="margin-top: 50px; text-align: center;">
+                <h3 style="color: var(--galaxy-accent); margin-bottom: 20px;">Share Your Experience</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Help us improve by sharing your feedback!</p>
+                <button class="btn-primary" onclick="openFeedbackModal()" style="padding: 12px 24px;">Leave Feedback</button>
+            </div>
         </div>
     </section>
 
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
     <button class="admin-btn" onclick="openAdmin()">Admin</button>
 
     <footer>
@@ -2608,6 +2756,36 @@
                 <div class="calculator-actions">
                     <button class="btn-primary" id="addToBasketBtn" onclick="addTradeInToBasket()" disabled>Add to Basket</button>
                     <button class="btn-secondary" onclick="closeTradeInModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Feedback Modal -->
+    <div class="modal" id="feedbackModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeFeedbackModal()">&times;</span>
+            <h2>Share Your Feedback</h2>
+            <div class="feedback-form">
+                <div class="rating-section">
+                    <label>How would you rate your experience?</label>
+                    <div class="star-rating" id="starRating">
+                        <span class="star" data-rating="1">⭐</span>
+                        <span class="star" data-rating="2">⭐</span>
+                        <span class="star" data-rating="3">⭐</span>
+                        <span class="star" data-rating="4">⭐</span>
+                        <span class="star" data-rating="5">⭐</span>
+                    </div>
+                </div>
+
+                <div class="feedback-input">
+                    <label for="feedbackText">Tell us about your experience (optional)</label>
+                    <textarea id="feedbackText" placeholder="What did you like? What could we improve? Any suggestions?" rows="4"></textarea>
+                </div>
+
+                <div class="feedback-actions">
+                    <button class="btn-primary" onclick="submitFeedback()">Submit Feedback</button>
+                    <button class="btn-secondary" onclick="closeFeedbackModal()">Cancel</button>
                 </div>
             </div>
         </div>

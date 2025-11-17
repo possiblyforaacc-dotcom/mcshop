@@ -502,6 +502,9 @@ function completeOrder(id) {
     ticket.status = 'Completed';
     ticket.completedAt = new Date().toISOString();
 
+    // Add to shopping history
+    addToShoppingHistory(ticket);
+
     // Reduce stock for basket orders (only for regular items, not trade-ins)
     if (ticket.basket && ticket.basket.length > 0) {
         ticket.basket.forEach(basketItem => {
@@ -535,6 +538,8 @@ function completeOrder(id) {
 
     // Send completion notification
     sendCompletionNotification(ticket);
+
+    showToast('Order completed successfully!', 'success');
 }
 
 function closeTicket(id) {

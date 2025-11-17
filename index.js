@@ -322,8 +322,12 @@ function addToBasketEnhanced(itemName, quantity) {
     // Simulate processing time
     setTimeout(() => {
         addToBasket(itemName, quantity);
+        displayBasket(); // Refresh basket display
+        animateBasketUpdate(); // Add bounce animation
+
         if (itemElement) {
             itemElement.classList.remove('loading');
+            addItemAnimation(itemElement); // Re-animate the item
         }
         showToast(`Added ${quantity}x ${itemName} to basket!`, 'success');
     }, 500);
@@ -438,12 +442,335 @@ function openAdmin() {
     setTimeout(checkLowStock, 500);
 }
 
+// Theme management
+let currentTheme = localStorage.getItem('theme') || 'dark';
+
+function toggleTheme() {
+    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', currentTheme);
+    applyTheme();
+
+    // Update toggle button
+    const toggleBtn = document.querySelector('.theme-toggle');
+    toggleBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+    toggleBtn.classList.toggle('light', currentTheme === 'light');
+
+    showToast(`Switched to ${currentTheme} mode`, 'success');
+}
+
+function applyTheme() {
+    document.body.className = `${currentTheme}-mode`;
+}
+
+// Favorites/Wishlist system
+let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+function toggleFavorite(itemName) {
+    const index = favorites.indexOf(itemName);
+    if (index > -1) {
+        favorites.splice(index, 1);
+        showToast(`Removed ${itemName} from favorites`, 'success');
+    } else {
+        favorites.push(itemName);
+        showToast(`Added ${itemName} to favorites`, 'success');
+    }
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    displayShop(); // Refresh to show favorite status
+}
+
+function isFavorite(itemName) {
+    return favorites.includes(itemName);
+}
+
+// Recently viewed items
+let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')) || [];
+
+function addToRecentlyViewed(itemName) {
+    // Remove if already exists
+    const index = recentlyViewed.indexOf(itemName);
+    if (index > -1) {
+        recentlyViewed.splice(index, 1);
+    }
+
+    // Add to beginning
+    recentlyViewed.unshift(itemName);
+
+    // Keep only last 10
+    if (recentlyViewed.length > 10) {
+        recentlyViewed = recentlyViewed.slice(0, 10);
+    }
+
+    localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
+}
+
+// Shopping history
+let shoppingHistory = JSON.parse(localStorage.getItem('shoppingHistory')) || [];
+
+function addToShoppingHistory(orderData) {
+    shoppingHistory.unshift({
+        id: Date.now(),
+        date: new Date().toISOString(),
+        items: orderData.basket || [],
+        total: getBasketTotal(),
+        status: 'completed'
+    });
+
+    // Keep only last 50 orders
+    if (shoppingHistory.length > 50) {
+        shoppingHistory = shoppingHistory.slice(0, 50);
+    }
+
+    localStorage.setItem('shoppingHistory', JSON.stringify(shoppingHistory));
+}
+
+// Enhanced displayShop with favorites and recently viewed
+function displayShop() {
+    const shop = document.getElementById('shop');
+    shop.innerHTML = '';
+    items.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'item card';
+        itemDiv.style.animationDelay = (index * 0.1) + 's';
+
+        // Add click handler for recently viewed
+        itemDiv.onclick = () => addToRecentlyViewed(item.name);
+
+        const stockText = item.stock > 0 ? `Stock: ${item.stock}` : 'Out of Stock';
+        const stockClass = item.stock > 0 ? 'in-stock' : 'out-stock';
+        const isFav = isFavorite(item.name);
+
+        let priceDisplay = '';
+        let buttonHTML = '';
+
+        if (item.tradeIn) {
+            priceDisplay = `<p class="price" style="color: #FFD700; font-weight: bold;">${item.price}</p>`;
+            buttonHTML = `<button class="btn-primary" onclick="submitTradeIn()" ${item.stock <= 0 ? 'disabled' : ''}>Trade In</button>`;
+        } else {
+            priceDisplay = `<p class="price">${item.price > 0 ? item.price + ' Diamonds' : 'Contact for Price'}</p>`;
+            const maxQuantity = item.stock > 0 ? item.stock : 0;
+            buttonHTML = `
+                <div class="quantity-selector">
+                    <input type="number" id="qty-${index}" min="1" max="${maxQuantity}" value="1" ${maxQuantity <= 0 ? 'disabled' : ''}>
+                    <button class="btn-primary" onclick="addToBasketEnhanced('${item.name}', parseInt(document.getElementById('qty-${index}').value))" ${maxQuantity <= 0 ? 'disabled' : ''}>Add to Basket</button>
+                </div>
+            `;
+        }
+
+        const favoriteIcon = isFav ? '❤️' : '🤍';
+
+        itemDiv.innerHTML = `
+            <div class="item-header">
+                <button class="favorite-btn" onclick="event.stopPropagation(); toggleFavorite('${item.name}')" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">${favoriteIcon}</button>
+            </div>
+            <h3>${item.name}</h3>
+            <p>${item.description}</p>
+            ${priceDisplay}
+            <p class="stock ${stockClass} badge">${stockText}</p>
+            ${buttonHTML}
+        `;
+
+        // Add hover tooltip with more details
+        itemDiv.title = `${item.name}\n${item.description}\nPrice: ${item.price > 0 ? item.price + ' diamonds' : 'Contact for price'}\nStock: ${item.stock}\nCategory: ${item.category || 'General'}`;
+
+        shop.appendChild(itemDiv);
+    });
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Ctrl/Cmd + K: Focus search
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('itemSearch').focus();
+    }
+
+    // Ctrl/Cmd + B: Open basket (scroll to basket)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault();
+        document.getElementById('basket').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Ctrl/Cmd + T: Toggle theme
+    if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+        e.preventDefault();
+        toggleTheme();
+    }
+
+    // Escape: Close modals
+    if (e.key === 'Escape') {
+        closeTradeInModal();
+        closeAdmin();
+    }
+
+    // Ctrl/Cmd + Enter: Submit form (when focused on form elements)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        const activeElement = document.activeElement;
+        if (activeElement.closest('#ticketForm')) {
+            e.preventDefault();
+            document.getElementById('ticketForm').dispatchEvent(new Event('submit'));
+        }
+    }
+});
+
+// Enhanced animations
+function addItemAnimation(itemElement) {
+    itemElement.style.animation = 'none';
+    itemElement.offsetHeight; // Trigger reflow
+    itemElement.style.animation = 'fadeInUp 0.6s ease-out';
+}
+
+function animateBasketUpdate() {
+    const basket = document.getElementById('basket');
+    basket.style.animation = 'none';
+    basket.offsetHeight; // Trigger reflow
+    basket.style.animation = 'bounce 0.5s ease-out';
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     createStars();
+    applyTheme();
     displayShop();
     displayBasket();
 
+    // Update theme toggle button
+    const toggleBtn = document.querySelector('.theme-toggle');
+    toggleBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+    toggleBtn.classList.toggle('light', currentTheme === 'light');
+
     // Check for low stock on page load
     setTimeout(checkLowStock, 1000);
+
+    // Add keyboard shortcuts hint
+    showKeyboardHints();
+
+    // Initialize star rating
+    initializeStarRating();
 });
+
+function showKeyboardHints() {
+    setTimeout(() => {
+        showToast('💡 Pro tip: Press Ctrl+K to search, Ctrl+B for basket, Ctrl+T to toggle theme!', 'success', 4000);
+    }, 2000);
+}
+
+// Customer feedback system
+let customerFeedback = JSON.parse(localStorage.getItem('customerFeedback')) || [];
+let currentRating = 0;
+
+function openFeedbackModal() {
+    document.getElementById('feedbackModal').style.display = 'flex';
+    resetFeedbackForm();
+}
+
+function closeFeedbackModal() {
+    document.getElementById('feedbackModal').style.display = 'none';
+    resetFeedbackForm();
+}
+
+function resetFeedbackForm() {
+    currentRating = 0;
+    document.getElementById('feedbackText').value = '';
+    document.querySelectorAll('.star').forEach(star => {
+        star.classList.remove('active');
+    });
+}
+
+function initializeStarRating() {
+    const stars = document.querySelectorAll('.star');
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            const rating = parseInt(star.dataset.rating);
+            currentRating = rating;
+            updateStarDisplay(rating);
+        });
+    });
+}
+
+function updateStarDisplay(rating) {
+    const stars = document.querySelectorAll('.star');
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.add('active');
+        } else {
+            star.classList.remove('active');
+        }
+    });
+}
+
+function submitFeedback() {
+    if (currentRating === 0) {
+        showToast('Please select a rating', 'error');
+        return;
+    }
+
+    const feedback = {
+        id: Date.now(),
+        rating: currentRating,
+        comment: document.getElementById('feedbackText').value.trim(),
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent
+    };
+
+    customerFeedback.push(feedback);
+    localStorage.setItem('customerFeedback', JSON.stringify(customerFeedback));
+
+    // Send feedback to Discord
+    sendFeedbackNotification(feedback);
+
+    closeFeedbackModal();
+    showToast('Thank you for your feedback!', 'success');
+}
+
+function sendFeedbackNotification(feedback) {
+    const webhookURL = 'https://discord.com/api/webhooks/1439768220348317767/Wkm_TQXlCX_uHmaRst1us4n5vyOqrirVriYONeTYsY98VYTbcQ3xy0ly4l-OuJxXmwJK';
+
+    if (webhookURL === 'YOUR_DISCORD_WEBHOOK_URL') {
+        console.log('Discord webhook not configured');
+        return;
+    }
+
+    const stars = '⭐'.repeat(feedback.rating);
+
+    fetch(webhookURL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            embeds: [{
+                title: '💬 New Customer Feedback',
+                color: 0x9C27B0, // Purple
+                fields: [
+                    {
+                        name: 'Rating',
+                        value: `${stars} (${feedback.rating}/5)`,
+                        inline: true
+                    },
+                    {
+                        name: 'Comment',
+                        value: feedback.comment || 'No comment provided',
+                        inline: false
+                    },
+                    {
+                        name: 'Timestamp',
+                        value: new Date(feedback.timestamp).toLocaleString(),
+                        inline: true
+                    }
+                ],
+                footer: {
+                    text: `Feedback ID: ${feedback.id}`
+                }
+            }]
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to send feedback notification');
+        }
+        console.log('Feedback notification sent successfully');
+    })
+    .catch(error => {
+        console.error('Error sending feedback notification:', error);
+    });
+}
