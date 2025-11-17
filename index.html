@@ -483,6 +483,56 @@
         .favorite-btn:hover {
             transform: scale(1.2);
         }
+        .compare-item-btn {
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            padding: 5px;
+            margin-left: 5px;
+        }
+        .compare-item-btn:hover {
+            transform: scale(1.2);
+        }
+        .badge-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #F44336;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Sale Badge */
+        .sale-badge {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            background: linear-gradient(45deg, #FF5722, #F44336);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+            animation: salePulse 2s infinite;
+            z-index: 10;
+        }
+
+        @keyframes salePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
         .item p {
             margin: 10px 0;
             color: #E0E0E0;
@@ -654,6 +704,36 @@
         }
         .theme-toggle.light {
             background: linear-gradient(135deg, #FFD700, #FFA500);
+        }
+
+        /* Additional UI Buttons */
+        .compare-btn, .history-btn {
+            position: fixed;
+            bottom: 20px;
+            background: linear-gradient(135deg, var(--galaxy-accent), var(--galaxy-glow));
+            border: 2px solid transparent;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            color: var(--galaxy-dark);
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .compare-btn {
+            right: 80px;
+        }
+
+        .history-btn {
+            right: 140px;
+        }
+
+        .compare-btn:hover, .history-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
         }
         .modal {
             display: none;
@@ -2293,6 +2373,18 @@
             gap: 10px;
             margin-top: 20px;
         }
+        .promo-section {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+        }
+        .promo-section input {
+            flex: 1;
+            margin-right: 10px;
+        }
         .btn-small {
             padding: 6px 12px;
             font-size: 0.9em;
@@ -2459,6 +2551,70 @@
             display: flex;
             gap: 15px;
             justify-content: center;
+        }
+
+        /* Large Modal Styles */
+        .large-modal {
+            max-width: 1200px;
+            width: 95%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* Comparison Table Styles */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .comparison-table th {
+            background: var(--galaxy-accent);
+            color: var(--galaxy-dark);
+            font-weight: 600;
+        }
+        .comparison-table .item-name {
+            font-weight: bold;
+            color: var(--galaxy-accent);
+        }
+        .comparison-table .remove-compare {
+            background: #F44336;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        /* History Styles */
+        .history-item {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .history-item h4 {
+            margin: 0 0 10px 0;
+            color: var(--galaxy-accent);
+        }
+        .history-date {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .history-items {
+            margin: 10px 0;
+        }
+        .history-total {
+            font-weight: bold;
+            color: var(--galaxy-accent);
+            text-align: right;
         }
 
         /* Admin Statistics */
@@ -2699,6 +2855,8 @@
     </section>
 
     <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
+    <button class="compare-btn" onclick="openComparison()" title="Compare Items">⚖️</button>
+    <button class="history-btn" onclick="openHistory()" title="Shopping History">📚</button>
     <button class="admin-btn" onclick="openAdmin()">Admin</button>
 
     <footer>
@@ -2713,10 +2871,112 @@
             <input type="password" id="adminPass" placeholder="Enter Password">
             <button onclick="checkPassword()">Login</button>
             <div id="adminContent" style="display: none;">
-                <h3>Tickets</h3>
-                <div id="tickets"></div>
-                <h3>Restock</h3>
-                <div id="restock"></div>
+                <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+                    <button class="btn-primary" onclick="showAnalytics()">📊 Analytics</button>
+                    <button class="btn-secondary" onclick="showBulkOperations()">⚙️ Bulk Operations</button>
+                    <button class="btn-secondary" onclick="showSaleManager()">🏷️ Sale Manager</button>
+                    <button class="btn-secondary" onclick="showTickets()">🎫 Tickets</button>
+                    <button class="btn-secondary" onclick="showRestock()">📦 Restock</button>
+                </div>
+
+                <div id="analyticsSection" style="display: none;">
+                    <h3>📊 Shop Analytics</h3>
+                    <div id="analyticsContent"></div>
+                </div>
+
+                <div id="bulkOperationsSection" style="display: none;">
+                    <h3>⚙️ Bulk Operations</h3>
+                    <div class="bulk-ops-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div class="card">
+                            <h4>Stock Management</h4>
+                            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                <input type="number" id="stockPercentage" placeholder="Percentage" style="width: 100px;">
+                                <button class="btn-success" onclick="bulkUpdateStock(parseInt(document.getElementById('stockPercentage').value))">Update Stock</button>
+                            </div>
+                            <small>Positive = increase, negative = decrease</small>
+                        </div>
+                        <div class="card">
+                            <h4>Price Management</h4>
+                            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                <input type="number" id="pricePercentage" placeholder="Percentage" style="width: 100px;">
+                                <button class="btn-warning" onclick="bulkUpdatePrices(parseInt(document.getElementById('pricePercentage').value))">Update Prices</button>
+                            </div>
+                            <small>Positive = increase, negative = decrease</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="saleManagerSection" style="display: none;">
+                    <h3>🏷️ Sale Manager</h3>
+                    <div class="sale-manager-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+                        <div class="card">
+                            <h4>Global Sale Settings</h4>
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px;">Sale Status:</label>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <label><input type="radio" name="saleStatus" value="disabled" onclick="toggleSale(false)"> Disabled</label>
+                                    <label><input type="radio" name="saleStatus" value="enabled" onclick="toggleSale(true)"> Enabled</label>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label for="salePercentage" style="display: block; margin-bottom: 5px;">Discount Percentage (0-100%):</label>
+                                <input type="range" id="salePercentage" min="0" max="100" value="0" oninput="updateSalePercentage(this.value)" style="width: 100%;">
+                                <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                                    <span>0%</span>
+                                    <span id="currentPercentage">0%</span>
+                                    <span>100%</span>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label for="saleName" style="display: block; margin-bottom: 5px;">Sale Name:</label>
+                                <input type="text" id="saleName" placeholder="e.g., Black Friday Sale" style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: rgba(255, 255, 255, 0.1); color: var(--text-primary);">
+                            </div>
+                            <button class="btn-success" onclick="applySaleSettings()">Apply Sale Settings</button>
+                        </div>
+
+                        <div class="card">
+                            <h4>Current Sale Status</h4>
+                            <div id="currentSaleStatus">
+                                <p>No active sale</p>
+                            </div>
+                            <div style="margin-top: 15px;">
+                                <button class="btn-danger" onclick="endSale()">End Current Sale</button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h4>Category-Specific Sales</h4>
+                            <div id="categorySales">
+                                <div style="margin-bottom: 10px;">
+                                    <select id="categorySelect" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: rgba(255, 255, 255, 0.1); color: var(--text-primary);">
+                                        <option value="weapons">Weapons</option>
+                                        <option value="armor">Armor</option>
+                                        <option value="tools">Tools</option>
+                                        <option value="consumables">Consumables</option>
+                                        <option value="decorative">Decorative</option>
+                                    </select>
+                                    <input type="range" id="categorySalePercentage" min="0" max="100" value="0" oninput="updateCategorySalePercentage(this.value)" style="width: 100%;">
+                                    <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                                        <span>0%</span>
+                                        <span id="currentCategoryPercentage">0%</span>
+                                        <span>100%</span>
+                                    </div>
+                                    <button class="btn-primary" onclick="applyCategorySale()" style="margin-top: 10px;">Apply Category Sale</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="ticketsSection">
+                    <h3>🎫 Tickets</h3>
+                    <div id="tickets"></div>
+                </div>
+
+                <div id="restockSection" style="display: none;">
+                    <h3>📦 Restock</h3>
+                    <div id="restock"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -2787,6 +3047,28 @@
                     <button class="btn-primary" onclick="submitFeedback()">Submit Feedback</button>
                     <button class="btn-secondary" onclick="closeFeedbackModal()">Cancel</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Comparison Modal -->
+    <div class="modal" id="comparisonModal">
+        <div class="modal-content large-modal">
+            <span class="close" onclick="closeComparison()">&times;</span>
+            <h2>Compare Items</h2>
+            <div id="comparisonContent">
+                <p class="text-center">Add items to compare by clicking the compare button on items in the shop!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shopping History Modal -->
+    <div class="modal" id="historyModal">
+        <div class="modal-content large-modal">
+            <span class="close" onclick="closeHistory()">&times;</span>
+            <h2>Your Shopping History</h2>
+            <div id="historyContent">
+                <p class="text-center">Your completed orders will appear here!</p>
             </div>
         </div>
     </div>
