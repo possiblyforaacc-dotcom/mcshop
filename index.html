@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -48,17 +48,21 @@
         }
 
         body.light-mode .galaxy {
-            background: radial-gradient(circle at center, #E3F2FD 0%, #FAFAFA 50%, #FFFFFF 100%);
+            background: radial-gradient(circle at center, #1a1a2e 0%, #16213e 50%, #0f1419 100%);
         }
 
         body.light-mode .stars {
-            opacity: 0.3;
+            opacity: 0.4;
+        }
+
+        body.light-mode .galaxy::after {
+            opacity: 0.4;
         }
         body {
             margin: 0;
             padding: 0;
             font-family: 'Orbitron', 'Arial', sans-serif;
-            background: linear-gradient(135deg, var(--galaxy-dark) 0%, var(--galaxy-purple) 50%, var(--galaxy-blue) 100%);
+            background: linear-gradient(135deg, #0a0a1a 0%, #000011 50%, #000000 100%);
             background-attachment: fixed;
             color: var(--text-primary);
             overflow-x: hidden;
@@ -72,8 +76,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at top, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-                        radial-gradient(ellipse at bottom, rgba(30, 58, 138, 0.1) 0%, transparent 50%);
+            background: radial-gradient(ellipse at top, rgba(88, 28, 135, 0.08) 0%, transparent 60%),
+                        radial-gradient(ellipse at bottom, rgba(59, 130, 246, 0.06) 0%, transparent 50%);
             pointer-events: none;
             z-index: -1;
         }
@@ -115,7 +119,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at center, var(--galaxy-purple) 0%, var(--galaxy-dark) 50%, #000000 100%);
+            background: radial-gradient(ellipse at center, #0a0a1a 0%, #000011 70%, #000000 100%);
             z-index: -2;
         }
         .galaxy::before {
@@ -125,10 +129,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.2) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 40%, rgba(30, 58, 138, 0.3) 0%, transparent 50%);
-            /* Static for professional appearance */
+            background:
+                /* Simplified nebula - single deep purple/blue gradient */
+                radial-gradient(circle at 30% 70%, rgba(88, 28, 135, 0.15) 0%, transparent 60%),
+                radial-gradient(circle at 70% 30%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
         }
         .galaxy::after {
             content: '';
@@ -137,14 +141,43 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 2px,
-                rgba(139, 92, 246, 0.05) 2px,
-                rgba(139, 92, 246, 0.05) 4px
-            );
-            /* Static grid for clean look */
+            /* Constellation connecting lines */
+            background-image:
+                /* Ursa Major (Big Dipper) - main lines */
+                linear-gradient(45deg, transparent 49%, rgba(255, 255, 255, 0.12) 49%, rgba(255, 255, 255, 0.12) 51%, transparent 51%),
+                linear-gradient(30deg, transparent 49%, rgba(255, 255, 255, 0.10) 49%, rgba(255, 255, 255, 0.10) 51%, transparent 51%),
+                linear-gradient(60deg, transparent 49%, rgba(255, 255, 255, 0.08) 49%, rgba(255, 255, 255, 0.08) 51%, transparent 51%),
+                linear-gradient(15deg, transparent 49%, rgba(255, 255, 255, 0.06) 49%, rgba(255, 255, 255, 0.06) 51%, transparent 51%),
+                /* Ursa Major - connecting lines */
+                linear-gradient(75deg, transparent 49%, rgba(255, 255, 255, 0.05) 49%, rgba(255, 255, 255, 0.05) 51%, transparent 51%),
+                linear-gradient(90deg, transparent 49%, rgba(255, 255, 255, 0.04) 49%, rgba(255, 255, 255, 0.04) 51%, transparent 51%),
+                /* Orion's Belt */
+                linear-gradient(0deg, transparent 49%, rgba(255, 255, 255, 0.15) 49%, rgba(255, 255, 255, 0.15) 51%, transparent 51%),
+                linear-gradient(75deg, transparent 49%, rgba(255, 255, 255, 0.11) 49%, rgba(255, 255, 255, 0.11) 51%, transparent 51%),
+                linear-gradient(105deg, transparent 49%, rgba(255, 255, 255, 0.09) 49%, rgba(255, 255, 255, 0.09) 51%, transparent 51%),
+                /* Cassiopeia W-shape */
+                linear-gradient(120deg, transparent 49%, rgba(255, 255, 255, 0.09) 49%, rgba(255, 255, 255, 0.09) 51%, transparent 51%),
+                linear-gradient(135deg, transparent 49%, rgba(255, 255, 255, 0.10) 49%, rgba(255, 255, 255, 0.10) 51%, transparent 51%),
+                linear-gradient(150deg, transparent 49%, rgba(255, 255, 255, 0.07) 49%, rgba(255, 255, 255, 0.07) 51%, transparent 51%),
+                /* Draco (Dragon) */
+                linear-gradient(200deg, transparent 49%, rgba(255, 255, 255, 0.06) 49%, rgba(255, 255, 255, 0.06) 51%, transparent 51%),
+                linear-gradient(220deg, transparent 49%, rgba(255, 255, 255, 0.05) 49%, rgba(255, 255, 255, 0.05) 51%, transparent 51%),
+                /* Ursa Minor (Little Dipper) */
+                linear-gradient(300deg, transparent 49%, rgba(255, 255, 255, 0.08) 49%, rgba(255, 255, 255, 0.08) 51%, transparent 51%),
+                linear-gradient(315deg, transparent 49%, rgba(255, 255, 255, 0.06) 49%, rgba(255, 255, 255, 0.06) 51%, transparent 51%);
+            background-size: 200px 200px, 180px 180px, 160px 160px, 140px 140px, 120px 120px, 100px 100px,
+                           220px 220px, 200px 200px, 180px 180px,
+                           190px 190px, 170px 170px, 150px 150px,
+                           160px 160px, 140px 140px,
+                           130px 130px, 110px 110px;
+            background-position:
+                15% 20%, 18% 23%, 21% 26%, 24% 29%, 27% 32%, 30% 35%,
+                70% 60%, 73% 63%, 76% 66%,
+                80% 25%, 83% 28%, 86% 31%,
+                45% 15%, 48% 18%,
+                10% 70%, 13% 73%;
+            background-repeat: no-repeat;
+            opacity: 0.7;
         }
         @keyframes galaxyRotate {
             from { transform: rotate(0deg); }
@@ -163,20 +196,25 @@
         }
         .star {
             position: absolute;
-            background: var(--galaxy-star);
+            background: #ffffff;
             border-radius: 50%;
-            box-shadow: 0 0 6px var(--galaxy-star), 0 0 12px var(--galaxy-star);
-            animation: twinkle 6s infinite ease-in-out, float 20s ease-in-out infinite;
+            box-shadow: 0 0 4px rgba(255, 255, 255, 0.8), 0 0 8px rgba(255, 255, 255, 0.4);
+            animation: twinkle 8s infinite ease-in-out, float 25s ease-in-out infinite;
         }
         .star:nth-child(3n) {
-            background: var(--galaxy-glow);
-            box-shadow: 0 0 8px var(--galaxy-glow), 0 0 16px var(--galaxy-glow);
+            background: #e6e6fa;
+            box-shadow: 0 0 6px rgba(230, 230, 250, 0.6), 0 0 12px rgba(230, 230, 250, 0.3);
+            animation-duration: 10s, 35s;
+        }
+        .star:nth-child(7n) {
+            background: #b0c4de;
+            box-shadow: 0 0 5px rgba(176, 196, 222, 0.7), 0 0 10px rgba(176, 196, 222, 0.4);
             animation-duration: 12s, 40s;
         }
-        .star:nth-child(5n) {
-            background: var(--galaxy-accent);
-            box-shadow: 0 0 10px var(--galaxy-accent), 0 0 20px var(--galaxy-accent);
-            animation-duration: 15s, 45s;
+        .star:nth-child(11n) {
+            background: #f0f8ff;
+            box-shadow: 0 0 3px rgba(240, 248, 255, 0.9), 0 0 6px rgba(240, 248, 255, 0.5);
+            animation-duration: 9s, 30s;
         }
         @keyframes twinkle {
             0%, 100% { opacity: 0.3; transform: scale(0.9); }
