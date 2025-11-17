@@ -1598,3 +1598,137 @@ function sendFeedbackNotification(feedback) {
         console.error('Error sending feedback notification:', error);
     });
 }
+
+// Trade-in system functions
+let selectedTradeInItem = '';
+
+function submitTradeIn(itemName) {
+    console.log('submitTradeIn called with:', itemName);
+    const modal = document.getElementById('tradeInModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        resetTradeInSelection();
+
+        // Pre-select the appropriate trade-in option based on the item clicked
+        if (itemName === 'Ancient Debris (Trade-in)') {
+            selectTradeInItem('Ancient Debris');
+        } else if (itemName === 'Netherite Ingots (Trade-in)') {
+            selectTradeInItem('Netherite Ingots');
+        } else if (itemName === 'Netherite Ingots to Diamonds') {
+            selectTradeInItem('Netherite Ingots');
+        } else if (itemName === 'Ancient Debris to Diamonds') {
+            selectTradeInItem('Ancient Debris');
+        }
+    } else {
+        console.error('Trade-in modal not found');
+    }
+}
+
+function closeTradeInModal() {
+    document.getElementById('tradeInModal').style.display = 'none';
+    resetTradeInSelection();
+}
+
+function resetTradeInSelection() {
+    selectedTradeInItem = '';
+    document.querySelectorAll('.trade-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    document.getElementById('quantitySection').style.display = 'none';
+    document.getElementById('tradeInQuantity').value = '';
+    document.getElementById('costDisplay').innerHTML = '<p>Select a quantity above to see the diamond cost!</p>';
+    document.getElementById('addToBasketBtn').disabled = true;
+}
+
+function selectTradeInItem(itemName) {
+    selectedTradeInItem = itemName;
+
+    // Update UI
+    document.querySelectorAll('.trade-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+
+    // Find and select the clicked option
+    const options = document.querySelectorAll('.trade-option');
+    options.forEach(option => {
+        if (option.querySelector('h3').textContent === itemName) {
+            option.classList.add('selected');
+        }
+    });
+
+    // Show quantity section
+    document.getElementById('quantitySection').style.display = 'block';
+    document.getElementById('tradeInQuantity').focus();
+}
+
+function calculateTradeInCost() {
+    const quantity = parseInt(document.getElementById('tradeInQuantity').value) || 0;
+    const costDisplay = document.getElementById('costDisplay');
+    const addBtn = document.getElementById('addToBasketBtn');
+
+    if (quantity <= 0) {
+        costDisplay.innerHTML = '<p>Select a quantity above to see the diamond cost!</p>';
+        addBtn.disabled = true;
+        return;
+    }
+
+    let diamondsNeeded = 0;
+    let itemName = '';
+
+    if (selectedTradeInItem === 'Ancient Debris') {
+        // 10 diamonds = 3 Ancient Debris, so for X Ancient Debris: (X / 3) * 10 diamonds
+        diamondsNeeded = Math.ceil((quantity / 3) * 10);
+        itemName = 'Ancient Debris';
+    } else if (selectedTradeInItem === 'Netherite Ingots') {
+        // 15 diamonds = 3 Netherite Ingots, so for X Netherite Ingots: (X / 3) * 15 diamonds
+        diamondsNeeded = Math.ceil((quantity / 3) * 15);
+        itemName = 'Netherite Ingots';
+    }
+
+    costDisplay.innerHTML = `
+        <p>You want: <span class="cost-highlight">${quantity} ${itemName}</span></p>
+        <p>Diamonds needed: <span class="cost-highlight">${diamondsNeeded} diamonds</span></p>
+        <p><small>This ensures you get at least the quantity you requested</small></p>
+    `;
+
+    addBtn.disabled = false;
+}
+
+function addTradeInToBasket() {
+    const quantity = parseInt(document.getElementById('tradeInQuantity').value);
+    if (!selectedTradeInItem || quantity <= 0) return;
+
+    // Calculate diamonds needed
+    let diamondsNeeded = 0;
+    let itemName = '';
+
+    if (selectedTradeInItem === 'Ancient Debris') {
+        diamondsNeeded = Math.ceil((quantity / 3) * 10);
+        itemName = 'Ancient Debris (Trade-in)';
+    } else if (selectedTradeInItem === 'Netherite Ingots') {
+        diamondsNeeded = Math.ceil((quantity / 3) * 15);
+        itemName = 'Netherite Ingots (Trade-in)';
+    }
+
+    // Add to basket with special trade-in data
+    const basketItem = {
+        name: itemName,
+        quantity: quantity,
+        diamondsNeeded: diamondsNeeded,
+        tradeInType: selectedTradeInItem
+    };
+
+    // Check if this trade-in type is already in basket
+    const existingIndex = basket.findIndex(item => item.name === itemName);
+    if (existingIndex >= 0) {
+        basket[existingIndex] = basketItem;
+    } else {
+        basket.push(basketItem);
+    }
+
+    saveBasket();
+    displayBasket();
+    closeTradeInModal();
+
+    showToast(`Added ${quantity} ${selectedTradeInItem} trade-in to basket!`, 'success');
+}
