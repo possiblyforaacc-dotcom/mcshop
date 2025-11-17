@@ -216,14 +216,70 @@ function submitTicket(itemName) {
     document.getElementById('ticketForm').scrollIntoView({ behavior: 'smooth' });
 }
 
+let currentTradeInItem = '';
+
 function submitTradeIn(itemName) {
-    document.getElementById('item').value = itemName;
-    document.getElementById('ticketForm').scrollIntoView({ behavior: 'smooth' });
-    // Add a note about trade-in
-    const messageField = document.getElementById('message');
-    if (!messageField.value.includes('TRADE-IN REQUEST')) {
-        messageField.value = 'TRADE-IN REQUEST: Please specify how many diamonds you want to trade in.\n\n' + messageField.value;
+    currentTradeInItem = itemName;
+    document.getElementById('tradeInTitle').textContent = itemName;
+    document.getElementById('tradeInModal').style.display = 'flex';
+    document.getElementById('tradeInDiamonds').value = '';
+    document.getElementById('calculatorResult').innerHTML = '<p>Enter the number of diamonds above to see what you\'ll receive!</p>';
+    document.getElementById('proceedTradeInBtn').disabled = true;
+}
+
+function closeTradeInModal() {
+    document.getElementById('tradeInModal').style.display = 'none';
+    currentTradeInItem = '';
+}
+
+function calculateTradeIn() {
+    const diamonds = parseInt(document.getElementById('tradeInDiamonds').value) || 0;
+    const resultDiv = document.getElementById('calculatorResult');
+    const proceedBtn = document.getElementById('proceedTradeInBtn');
+
+    if (diamonds <= 0) {
+        resultDiv.innerHTML = '<p>Enter the number of diamonds above to see what you\'ll receive!</p>';
+        proceedBtn.disabled = true;
+        return;
     }
+
+    let result = '';
+    let canProceed = false;
+
+    if (currentTradeInItem.includes('Ancient Debris')) {
+        const ancientDebris = Math.floor(diamonds / 10) * 3;
+        const remainder = diamonds % 10;
+        result = `<p>You'll receive: <span class="result-highlight">${ancientDebris} Ancient Debris</span></p>`;
+        if (remainder > 0) {
+            result += `<p><small>You need ${10 - remainder} more diamonds for additional Ancient Debris</small></p>`;
+        }
+        canProceed = ancientDebris > 0;
+    } else if (currentTradeInItem.includes('Netherite Ingots')) {
+        const netheriteIngots = Math.floor(diamonds / 15) * 3;
+        const remainder = diamonds % 15;
+        result = `<p>You'll receive: <span class="result-highlight">${netheriteIngots} Netherite Ingots</span></p>`;
+        if (remainder > 0) {
+            result += `<p><small>You need ${15 - remainder} more diamonds for additional Netherite Ingots</small></p>`;
+        }
+        canProceed = netheriteIngots > 0;
+    }
+
+    resultDiv.innerHTML = result;
+    proceedBtn.disabled = !canProceed;
+}
+
+function proceedWithTradeIn() {
+    const diamonds = parseInt(document.getElementById('tradeInDiamonds').value);
+    closeTradeInModal();
+
+    // Fill the form with trade-in details
+    document.getElementById('item').value = currentTradeInItem;
+    document.getElementById('quantity').value = '1'; // Not used for trade-ins
+    const messageField = document.getElementById('message');
+    messageField.value = `TRADE-IN REQUEST: ${diamonds} diamonds\n\n` + messageField.value;
+
+    // Scroll to form
+    document.getElementById('ticketForm').scrollIntoView({ behavior: 'smooth' });
 }
 
 // Admin functions

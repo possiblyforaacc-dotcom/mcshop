@@ -2200,6 +2200,131 @@
             font-size: 0.9em;
         }
 
+        /* Trade-in Calculator Styles */
+        .trade-in-calculator {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .calculator-input {
+            margin-bottom: 20px;
+        }
+        .calculator-input label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .calculator-input input {
+            width: 200px;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 1.1em;
+            text-align: center;
+        }
+        .calculator-result {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .calculator-result p {
+            margin: 0;
+            font-size: 1.1em;
+            color: var(--text-primary);
+        }
+        .calculator-result .result-highlight {
+            color: var(--galaxy-accent);
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .calculator-actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* Search and Filter Styles */
+        .search-filter {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+        .filter-btn:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--galaxy-accent);
+        }
+        .filter-btn.active {
+            background: var(--galaxy-accent);
+            color: var(--galaxy-dark);
+            border-color: var(--galaxy-accent);
+        }
+
+        /* Enhanced loading states */
+        .item.loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .item.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid var(--galaxy-accent);
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--galaxy-accent);
+            color: var(--galaxy-dark);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            font-weight: 600;
+        }
+        .toast.show {
+            transform: translateX(0);
+        }
+        .toast.success {
+            background: #4CAF50;
+            color: white;
+        }
+        .toast.error {
+            background: #F44336;
+            color: white;
+        }
+
         /* Responsive cosmic adjustments */
         @media (max-width: 768px) {
             .hero-content h1 {
@@ -2233,6 +2358,19 @@
         <div class="container">
             <h2 style="text-align: center; margin-bottom: 20px; color: var(--galaxy-accent);">Our Premium Items</h2>
             <p style="text-align: center; color: var(--text-secondary); margin-bottom: 40px; font-style: italic;">💰 All prices are negotiable - contact us for the best deals!</p>
+
+            <!-- Search and Filter -->
+            <div class="search-filter" style="text-align: center; margin-bottom: 30px;">
+                <input type="text" id="itemSearch" placeholder="🔍 Search items..." oninput="filterItems()" style="padding: 12px 20px; border: 2px solid var(--border-color); border-radius: 25px; background: rgba(255, 255, 255, 0.1); color: var(--text-primary); font-size: 1em; width: 300px; max-width: 90%; margin-bottom: 15px;">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterByCategory('all')">All Items</button>
+                    <button class="filter-btn" onclick="filterByCategory('weapons')">Weapons</button>
+                    <button class="filter-btn" onclick="filterByCategory('armor')">Armor</button>
+                    <button class="filter-btn" onclick="filterByCategory('tools')">Tools</button>
+                    <button class="filter-btn" onclick="filterByCategory('tradein')">Trade-ins</button>
+                </div>
+            </div>
+
             <div class="shop" id="shop" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-bottom: 20px;"></div>
         </div>
     </section>
@@ -2336,6 +2474,27 @@
                 <div id="tickets"></div>
                 <h3>Restock</h3>
                 <div id="restock"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trade-in Calculator Modal -->
+    <div class="modal" id="tradeInModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeTradeInModal()">&times;</span>
+            <h2 id="tradeInTitle">Trade-in Calculator</h2>
+            <div class="trade-in-calculator">
+                <div class="calculator-input">
+                    <label for="tradeInDiamonds">How many diamonds do you want to trade?</label>
+                    <input type="number" id="tradeInDiamonds" min="1" placeholder="Enter diamond amount" oninput="calculateTradeIn()">
+                </div>
+                <div class="calculator-result" id="calculatorResult">
+                    <p>Enter the number of diamonds above to see what you'll receive!</p>
+                </div>
+                <div class="calculator-actions">
+                    <button class="btn-primary" id="proceedTradeInBtn" onclick="proceedWithTradeIn()" disabled>Proceed with Trade-in</button>
+                    <button class="btn-secondary" onclick="closeTradeInModal()">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
