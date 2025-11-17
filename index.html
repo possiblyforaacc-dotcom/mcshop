@@ -2151,6 +2151,55 @@
             pointer-events: none;
         }
 
+        /* Basket styles */
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .quantity-selector input {
+            width: 60px;
+            padding: 8px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            text-align: center;
+        }
+        .basket-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .basket-item-info {
+            flex: 1;
+        }
+        .basket-item-info input {
+            width: 60px;
+            padding: 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            text-align: center;
+            margin-left: 10px;
+        }
+        .basket-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.9em;
+        }
+
         /* Responsive cosmic adjustments */
         @media (max-width: 768px) {
             .hero-content h1 {
@@ -2185,6 +2234,14 @@
             <h2 style="text-align: center; margin-bottom: 20px; color: var(--galaxy-accent);">Our Premium Items</h2>
             <p style="text-align: center; color: var(--text-secondary); margin-bottom: 40px; font-style: italic;">💰 All prices are negotiable - contact us for the best deals!</p>
             <div class="shop" id="shop" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-bottom: 20px;"></div>
+        </div>
+    </section>
+
+    <!-- Basket Section -->
+    <section class="basket-section" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.05), rgba(139, 92, 246, 0.05), rgba(15, 15, 35, 0.1)); border-radius: 50px; margin: 20px; position: relative;">
+        <div class="container">
+            <div id="basket" style="margin-bottom: 20px;"></div>
+            <div id="basket-total" style="text-align: center; font-size: 1.2em; font-weight: bold; color: var(--galaxy-accent); margin-bottom: 20px;"></div>
         </div>
     </section>
 

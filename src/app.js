@@ -15,6 +15,9 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
         return;
     }
 
+    // Check if this is a basket order
+    const isBasketOrder = item === 'Basket Order' && basket && basket.length > 0;
+
     const ticket = {
         id: Date.now(),
         name,
@@ -24,13 +27,19 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
         message,
         status: 'Open',
         response: '',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        basket: isBasketOrder ? [...basket] : null // Include basket data if it's a basket order
     };
     tickets.push(ticket);
     localStorage.setItem('tickets', JSON.stringify(tickets));
 
     // Send Discord webhook notification
     sendDiscordNotification(ticket);
+
+    // Clear basket if it was a basket order
+    if (isBasketOrder) {
+        clearBasket();
+    }
 
     alert('Order submitted successfully! We will contact you via Discord.');
     this.reset();
@@ -46,20 +55,64 @@ function sendDiscordNotification(ticket) {
         return;
     }
 
-    const embed = {
-        title: '🛒 New Order Received!',
-        color: 0x8B5CF6, // Purple color
-        fields: [
+    const isTradeIn = ticket.item.includes('Trade-in') || ticket.message.includes('TRADE-IN REQUEST');
+    const isBasketOrder = ticket.basket && ticket.basket.length > 0;
+
+    let embedTitle = '🛒 New Order Received!';
+    let embedColor = 0x8B5CF6; // Purple for regular orders
+
+    if (isTradeIn) {
+        embedTitle = '🔄 New Trade-in Request!';
+        embedColor = 0xFFD700; // Gold for trade-ins
+    } else if (isBasketOrder) {
+        embedTitle = '🛒 New Basket Order Received!';
+        embedColor = 0x10B981; // Green for basket orders
+    }
+
+    const fields = [
+        {
+            name: '👤 Customer',
+            value: ticket.name,
+            inline: true
+        },
+        {
+            name: '💬 Discord',
+            value: ticket.discord,
+            inline: true
+        }
+    ];
+
+    if (isBasketOrder) {
+        // For basket orders, show basket contents
+        let basketSummary = '';
+        let totalDiamonds = 0;
+
+        ticket.basket.forEach(item => {
+            const shopItem = items.find(i => i.name === item.name);
+            if (shopItem && !shopItem.tradeIn) {
+                const itemTotal = shopItem.price * item.quantity;
+                totalDiamonds += itemTotal;
+                basketSummary += `${item.name} × ${item.quantity} = ${itemTotal} diamonds\n`;
+            } else if (shopItem && shopItem.tradeIn) {
+                basketSummary += `${item.name} × ${item.quantity} (Trade-in)\n`;
+            }
+        });
+
+        fields.push(
             {
-                name: '👤 Customer',
-                value: ticket.name,
-                inline: true
+                name: '🛒 Basket Contents',
+                value: basketSummary || 'No items',
+                inline: false
             },
             {
-                name: '💬 Discord',
-                value: ticket.discord,
+                name: '💎 Total Diamonds',
+                value: totalDiamonds.toString(),
                 inline: true
-            },
+            }
+        );
+    } else {
+        // For single item orders
+        fields.push(
             {
                 name: '📦 Item',
                 value: ticket.item,
@@ -71,16 +124,23 @@ function sendDiscordNotification(ticket) {
                 inline: true
             },
             {
-                name: '💎 Total Diamonds',
+                name: isTradeIn ? '🔄 Trade Calculation' : '💎 Total Diamonds',
                 value: calculateTotalDiamonds(ticket),
                 inline: true
-            },
-            {
-                name: '📝 Message',
-                value: ticket.message || 'No additional message',
-                inline: false
             }
-        ],
+        );
+    }
+
+    fields.push({
+        name: '📝 Message',
+        value: ticket.message || 'No additional message',
+        inline: false
+    });
+
+    const embed = {
+        title: embedTitle,
+        color: embedColor,
+        fields: fields,
         timestamp: ticket.timestamp,
         footer: {
             text: `Order ID: ${ticket.id}`
@@ -109,6 +169,19 @@ function sendDiscordNotification(ticket) {
 }
 
 function calculateTotalDiamonds(ticket) {
+    // Check if this is a trade-in request
+    if (ticket.item.includes('Trade-in') || ticket.message.includes('TRADE-IN REQUEST')) {
+        // For trade-ins: 10 diamonds = 3 Ancient Debris
+        // Extract number of diamonds from message
+        const diamondMatch = ticket.message.match(/(\d+)\s*diamonds?/i);
+        if (diamondMatch) {
+            const diamonds = parseInt(diamondMatch[1]);
+            const ancientDebris = Math.floor(diamonds / 10) * 3;
+            return `${diamonds} diamonds → ${ancientDebris} Ancient Debris`;
+        }
+        return 'Trade-in: Specify diamond amount';
+    }
+
     // Extract price from item string (e.g., "Netherite Sword (30 diamonds)" -> 30)
     const priceMatch = ticket.item.match(/\((\d+) diamonds?\)/i);
     if (priceMatch) {
@@ -121,6 +194,16 @@ function calculateTotalDiamonds(ticket) {
 function submitTicket(itemName) {
     document.getElementById('item').value = itemName;
     document.getElementById('ticketForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function submitTradeIn(itemName) {
+    document.getElementById('item').value = itemName;
+    document.getElementById('ticketForm').scrollIntoView({ behavior: 'smooth' });
+    // Add a note about trade-in
+    const messageField = document.getElementById('message');
+    if (!messageField.value.includes('TRADE-IN REQUEST')) {
+        messageField.value = 'TRADE-IN REQUEST: Please specify how many diamonds you want to trade in.\n\n' + messageField.value;
+    }
 }
 
 // Admin functions
@@ -172,10 +255,31 @@ function displayTickets() {
         const statusClass = ticket.status === 'Closed' ? 'status-closed' : ticket.status === 'Responded' ? 'status-responded' : 'status-open';
         const quantity = ticket.quantity || 1;
         const totalDiamonds = calculateTotalDiamonds(ticket);
+        const isBasketOrder = ticket.basket && ticket.basket.length > 0;
+
+        let itemDisplay = ticket.item;
+        if (isBasketOrder) {
+            itemDisplay = 'Basket Order';
+        }
+        itemDisplay += `<br><small class="text-secondary">Qty: ${quantity}</small>`;
+
+        let basketDetails = '';
+        if (isBasketOrder) {
+            basketDetails = '<strong>Basket Contents:</strong><br>';
+            ticket.basket.forEach(item => {
+                const shopItem = items.find(i => i.name === item.name);
+                if (shopItem && !shopItem.tradeIn) {
+                    basketDetails += `${item.name} × ${item.quantity} = ${shopItem.price * item.quantity} diamonds<br>`;
+                } else if (shopItem && shopItem.tradeIn) {
+                    basketDetails += `${item.name} × ${item.quantity} (Trade-in)<br>`;
+                }
+            });
+        }
+
         row.innerHTML = `
             <td>${ticket.name}<br><small class="text-secondary">${ticket.discord}</small></td>
-            <td>${ticket.item}<br><small class="text-secondary">Qty: ${quantity}</small></td>
-            <td>${ticket.message}</td>
+            <td>${itemDisplay}</td>
+            <td>${basketDetails}${ticket.message}</td>
             <td><span class="status-badge ${statusClass}">${ticket.status}</span><br><small class="text-secondary">${totalDiamonds} diamonds</small></td>
             <td>
                 <div class="form-group">
