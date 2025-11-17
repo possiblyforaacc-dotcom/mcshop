@@ -10,8 +10,8 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
     const message = document.getElementById('message').value;
 
     // Validate Discord username format
-    if (!discord.includes('#')) {
-        alert('Please enter a valid Discord username (e.g., username#1234)');
+    if (!discord.trim()) {
+        alert('Please enter your Discord username');
         return;
     }
 

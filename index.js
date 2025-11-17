@@ -16,16 +16,12 @@ function createStars() {
 
 // Load items from localStorage or use defaults
 let items = JSON.parse(localStorage.getItem('shopItems')) || [
-    { name: 'Netherite Sword (Enchanted)', price: 30, description: 'Powerful enchanted sword', stock: 5 },
-    { name: 'Netherite Pickaxe', price: 40, description: 'Durable pickaxe for mining', stock: 3 },
-    { name: 'Netherite Axe', price: 40, description: 'Sharp axe for chopping', stock: 4 },
-    { name: 'Netherite Armor (Full Set)', price: 80, description: 'Complete set, 20% off deal!', stock: 2 },
-    { name: 'Netherite Armor (Individual Part)', price: 20, description: 'Helmet, Chestplate, Leggings, or Boots', stock: 10 },
-    { name: 'Diamond Armor (Full Set, Enchanted)', price: 0, description: 'Full enchanted diamond set available', stock: 1 },
-    { name: 'Food x64', price: 5, description: '64 Baked Potatoes - Perfect for long adventures', stock: 20 },
-    { name: 'Elytra', price: 30, description: 'Wings for flying through the skies', stock: 3 },
-    { name: 'Fireworks x64', price: 20, description: '64 Fireworks for epic celebrations', stock: Infinity },
-    { name: 'Dragon Head 1x', price: 50, description: 'Rare dragon head trophy', stock: 3 }
+    { name: 'Netherite Sword (Enchanted)', price: 30, description: 'Powerful enchanted sword with assorted enchants', stock: 5 },
+    { name: 'Netherite Pickaxe', price: 40, description: 'Durable enchanted pickaxe for mining', stock: 3 },
+    { name: 'Netherite Axe', price: 40, description: 'Sharp enchanted axe for chopping', stock: 4 },
+    { name: 'Netherite Armor (Full Set)', price: 80, description: 'Complete enchanted netherite armor set - 20% off deal!', stock: 2 },
+    { name: 'Netherite Armor (Individual Part)', price: 20, description: 'Individual enchanted netherite armor piece (Helmet, Chestplate, Leggings, or Boots)', stock: 10 },
+    { name: 'Diamond Armor (Full Set, Enchanted)', price: 0, description: 'Full enchanted diamond armor set available', stock: 1 }
 ];
 
 // Save items to localStorage
