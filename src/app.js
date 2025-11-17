@@ -44,6 +44,18 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
     alert('Order submitted successfully! We will contact you via Discord.');
     this.reset();
     document.getElementById('quantity').value = '1'; // Reset quantity
+
+    // Reset form state for basket orders
+    const messageField = document.getElementById('message');
+    messageField.readOnly = false;
+    messageField.style.backgroundColor = '';
+    messageField.style.cursor = '';
+
+    // Remove basket notice if it exists
+    const basketNotice = document.getElementById('basket-notice');
+    if (basketNotice) {
+        basketNotice.remove();
+    }
 });
 
 // Discord webhook integration
@@ -309,6 +321,30 @@ function respondToTicket(id) {
 function closeTicket(id) {
     const ticket = tickets.find(t => t.id === id);
     ticket.status = 'Closed';
+
+    // Reduce stock for basket orders
+    if (ticket.basket && ticket.basket.length > 0) {
+        ticket.basket.forEach(basketItem => {
+            const shopItem = items.find(i => i.name === basketItem.name);
+            if (shopItem && !shopItem.tradeIn && shopItem.stock > 0) {
+                shopItem.stock = Math.max(0, shopItem.stock - basketItem.quantity);
+            }
+        });
+        saveItems();
+        displayRestock();
+        displayShop();
+    }
+    // Reduce stock for single item orders (non-basket)
+    else if (ticket.item !== 'Basket Order' && ticket.item !== 'Trade-in Request') {
+        const shopItem = items.find(i => i.name === ticket.item);
+        if (shopItem && !shopItem.tradeIn && shopItem.stock > 0) {
+            shopItem.stock = Math.max(0, shopItem.stock - ticket.quantity);
+            saveItems();
+            displayRestock();
+            displayShop();
+        }
+    }
+
     localStorage.setItem('tickets', JSON.stringify(tickets));
     displayTickets();
 }

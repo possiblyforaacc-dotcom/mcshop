@@ -202,9 +202,25 @@ function checkout() {
 
     basketSummary += `\nTotal: ${totalDiamonds} diamonds\n\nAdditional message: `;
 
+    // Auto-select "Basket Order" in dropdown
     itemField.value = 'Basket Order';
     quantityField.value = '1'; // Not used for basket orders
     messageField.value = basketSummary;
+
+    // Make message field read-only for basket orders to prevent price changes
+    messageField.readOnly = true;
+    messageField.style.backgroundColor = '#f0f0f0';
+    messageField.style.cursor = 'not-allowed';
+
+    // Add a note that this is a basket order
+    const formContainer = document.querySelector('.ticket-form');
+    if (!document.getElementById('basket-notice')) {
+        const notice = document.createElement('div');
+        notice.id = 'basket-notice';
+        notice.style.cssText = 'background: #e8f4fd; border: 2px solid #2196F3; border-radius: 10px; padding: 15px; margin-bottom: 20px; color: #0d47a1; font-weight: bold;';
+        notice.innerHTML = '🛒 Basket Order - Order details are locked to prevent changes. Only add additional notes below if needed.';
+        formContainer.insertBefore(notice, formContainer.firstChild);
+    }
 
     // Scroll to form
     document.getElementById('ticketForm').scrollIntoView({ behavior: 'smooth' });
