@@ -17,6 +17,7 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
 
     // Check if this is a basket order
     const isBasketOrder = item === 'Basket Order' && basket && basket.length > 0;
+    const basketData = isBasketOrder ? [...basket] : null;
 
     const ticket = {
         id: Date.now(),
@@ -28,8 +29,13 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
         status: 'Open',
         response: '',
         timestamp: new Date().toISOString(),
-        basket: isBasketOrder ? [...basket] : null // Include basket data if it's a basket order
+        basket: basketData // Include basket data if it's a basket order
     };
+
+    console.log('Creating ticket:', ticket); // Debug log
+    console.log('Basket data:', basketData); // Debug log
+    console.log('Message:', message); // Debug log
+
     tickets.push(ticket);
     localStorage.setItem('tickets', JSON.stringify(tickets));
 
