@@ -39,7 +39,7 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
 
 // Discord webhook integration
 function sendDiscordNotification(ticket) {
-    const webhookURL = 'https://discord.com/api/webhooks/1439768220348317767/Wkm_TQXlCX_uHmaRst1us4n5vyOqrirVriYONeTYsY98VYTbcQ3xy0ly4l-OuJxXmwJK'; // Replace with your Discord webhook URL
+    const webhookURL = 'https://discord.com/api/webhooks/1440062296628920371/mANkQKBChzaC8Ye1Uh4qAbORUixOw2h3upcSzRUFPo7-cokSuXxP8T8zkvX7y3UuuIZs'; // Replace with your Discord webhook URL
 
     if (webhookURL === 'YOUR_DISCORD_WEBHOOK_URL') {
         console.log('Discord webhook not configured. Please set YOUR_DISCORD_WEBHOOK_URL in app.js');

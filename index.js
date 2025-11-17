@@ -26,7 +26,9 @@ let items = JSON.parse(localStorage.getItem('shopItems')) || [
     { name: 'Fireworks x64', price: 15, description: '64 Fireworks for epic celebrations', stock: Infinity, category: 'consumables' },
     { name: 'Dragon Head 1x', price: 38, description: 'Rare dragon head trophy', stock: 3, category: 'decorative' },
     { name: 'Ancient Debris (Trade-in)', price: '10 diamonds = 3 Ancient Debris', description: 'Trade in your diamonds for Ancient Debris! Rate: 10 diamonds = 3 Ancient Debris', stock: Infinity, tradeIn: true, category: 'tradein' },
-    { name: 'Netherite Ingots (Trade-in)', price: '15 diamonds = 3 Netherite Ingots', description: 'Trade in your diamonds for Netherite Ingots! Rate: 15 diamonds = 3 Netherite Ingots', stock: Infinity, tradeIn: true, category: 'tradein' }
+    { name: 'Netherite Ingots (Trade-in)', price: '15 diamonds = 3 Netherite Ingots', description: 'Trade in your diamonds for Netherite Ingots! Rate: 15 diamonds = 3 Netherite Ingots', stock: Infinity, tradeIn: true, category: 'tradein' },
+    { name: 'Netherite Ingots to Diamonds', price: '3 Netherite Ingots = 15 diamonds', description: 'Trade in your Netherite Ingots for diamonds! Rate: 3 Netherite Ingots = 15 diamonds', stock: Infinity, tradeIn: true, category: 'tradein' },
+    { name: 'Ancient Debris to Diamonds', price: '3 Ancient Debris = 10 diamonds', description: 'Trade in your Ancient Debris for diamonds! Rate: 3 Ancient Debris = 10 diamonds', stock: Infinity, tradeIn: true, category: 'tradein' }
 ];
 
 // Basket system
@@ -767,7 +769,7 @@ function displayShop() {
 
         if (item.tradeIn) {
             priceDisplay = `<p class="price" style="color: #FFD700; font-weight: bold;">${item.price}</p>`;
-            buttonHTML = `<button class="btn-primary" onclick="submitTradeIn()" ${item.stock <= 0 ? 'disabled' : ''}>Trade In</button>`;
+            buttonHTML = `<button class="btn-primary" onclick="submitTradeIn('${item.name}')" ${item.stock <= 0 ? 'disabled' : ''}>Trade In</button>`;
         } else {
             const originalPrice = item.price;
             const salePrice = getSalePrice(item);
@@ -1545,7 +1547,7 @@ function submitFeedback() {
 }
 
 function sendFeedbackNotification(feedback) {
-    const webhookURL = 'https://discord.com/api/webhooks/1439768220348317767/Wkm_TQXlCX_uHmaRst1us4n5vyOqrirVriYONeTYsY98VYTbcQ3xy0ly4l-OuJxXmwJK';
+    const webhookURL = 'https://discord.com/api/webhooks/1440062296628920371/mANkQKBChzaC8Ye1Uh4qAbORUixOw2h3upcSzRUFPo7-cokSuXxP8T8zkvX7y3UuuIZs';
 
     if (webhookURL === 'YOUR_DISCORD_WEBHOOK_URL') {
         console.log('Discord webhook not configured');
