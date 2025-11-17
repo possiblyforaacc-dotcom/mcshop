@@ -1,6 +1,0 @@
-services:
-  - type: web
-    name: minecraft-shop
-    runtime: static
-    buildCommand: echo 'Static site - no build required'
-    staticPublishPath: ./public
