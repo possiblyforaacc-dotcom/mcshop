@@ -2,15 +2,15 @@
   "name": "minecraft-shop",
   "version": "1.0.0",
   "description": "A Minecraft-themed shop with Netherite items and admin features",
-  "main": "public/index.html",
+  "main": "server.js",
   "scripts": {
-    "start": "serve public -l 3000",
+    "start": "node server.js",
     "build": "echo 'No build step required'"
   },
   "keywords": ["minecraft", "shop", "netlify"],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "serve": "^14.2.1"
+    "express": "^4.18.2"
   }
 }
