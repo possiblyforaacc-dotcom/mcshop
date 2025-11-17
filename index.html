@@ -42,13 +42,21 @@
             z-index: -1;
         }
         section {
-            min-height: 100vh;
+            min-height: auto;
+            display: block;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero {
+            min-height: 50vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 60px 20px;
-            position: relative;
-            overflow: hidden;
+        }
+        .shop-section, .ticket-section, .features {
+            min-height: auto;
+            padding: 40px 20px;
         }
         section::before {
             content: '';
@@ -2185,7 +2193,7 @@
             <h2 style="text-align: center; margin-bottom: 30px; color: var(--galaxy-accent);">Submit Your Order</h2>
             <div class="ticket-form">
                 <form id="ticketForm" style="max-width: 800px; margin: 0 auto;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
                         <div>
                             <label for="name" style="display: block; margin-bottom: 8px; color: var(--text-primary); font-weight: 600; font-size: 1em;">Your Name *</label>
                             <input type="text" id="name" placeholder="Enter your full name" required style="width: 100%; padding: 15px; border: 2px solid var(--border-color); border-radius: 12px; background: rgba(255, 255, 255, 0.1); color: var(--text-primary); font-size: 1em; transition: border-color 0.3s ease;">
@@ -2196,7 +2204,7 @@
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 25px;">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-bottom: 30px;">
                         <div>
                             <label for="item" style="display: block; margin-bottom: 8px; color: var(--text-primary); font-weight: 600; font-size: 1em;">Select Item *</label>
                             <select id="item" required style="width: 100%; padding: 15px; border: 2px solid var(--border-color); border-radius: 12px; background: rgba(255, 255, 255, 0.1); color: var(--text-primary); font-size: 1em; transition: border-color 0.3s ease;">
