@@ -216,7 +216,7 @@ function sendDiscordNotification(ticket) {
         },
         body: JSON.stringify({
             embeds: [embed],
-            content: `<@1160306193567338579> New order received!` // Mention the user
+            content: `<@1160306193567338579> <@1167488721680076812> New order received!` // Mention the user
         })
     })
     .then(response => {
