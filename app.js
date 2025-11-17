@@ -3,15 +3,34 @@ let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
 
 document.getElementById('ticketForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const name = document.getElementById('name').value;
-    const discord = document.getElementById('discord').value;
+    const name = document.getElementById('name').value.trim();
+    const discord = document.getElementById('discord').value.trim();
     const item = document.getElementById('item').value;
     const quantity = document.getElementById('quantity').value;
-    const message = document.getElementById('message').value;
+    const message = document.getElementById('message').value.trim();
 
-    // Validate Discord username format
-    if (!discord.trim()) {
+    // Basic validation
+    if (!name) {
+        alert('Please enter your name');
+        document.getElementById('name').focus();
+        return;
+    }
+
+    if (!discord) {
         alert('Please enter your Discord username');
+        document.getElementById('discord').focus();
+        return;
+    }
+
+    if (!item) {
+        alert('Please select an item');
+        document.getElementById('item').focus();
+        return;
+    }
+
+    if (!quantity || quantity < 1) {
+        alert('Please enter a valid quantity');
+        document.getElementById('quantity').focus();
         return;
     }
 

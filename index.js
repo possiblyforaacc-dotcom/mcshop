@@ -232,6 +232,8 @@ function checkout() {
     }
 
     // Fill the form with basket contents
+    const nameField = document.getElementById('name');
+    const discordField = document.getElementById('discord');
     const itemField = document.getElementById('item');
     const quantityField = document.getElementById('quantity');
     const messageField = document.getElementById('message');
@@ -259,6 +261,14 @@ function checkout() {
 
     basketSummary += `\nTotal: ${totalDiamonds} diamonds\n\nAdditional message: `;
 
+    // Auto-fill form fields
+    if (!nameField.value.trim()) {
+        nameField.value = 'Customer'; // Default name if not filled
+    }
+    if (!discordField.value.trim()) {
+        discordField.value = 'Please provide your Discord'; // Prompt for Discord
+    }
+
     // Auto-select "Basket Order" in dropdown
     itemField.value = 'Basket Order';
     quantityField.value = '1'; // Not used for basket orders
@@ -266,7 +276,7 @@ function checkout() {
 
     // Make message field read-only for basket orders to prevent price changes
     messageField.readOnly = true;
-    messageField.style.backgroundColor = '#f0f0f0';
+    messageField.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
     messageField.style.cursor = 'not-allowed';
 
     // Add a note that this is a basket order
@@ -274,13 +284,20 @@ function checkout() {
     if (!document.getElementById('basket-notice')) {
         const notice = document.createElement('div');
         notice.id = 'basket-notice';
-        notice.style.cssText = 'background: #e8f4fd; border: 2px solid #2196F3; border-radius: 10px; padding: 15px; margin-bottom: 20px; color: #0d47a1; font-weight: bold;';
+        notice.style.cssText = 'background: rgba(139, 92, 246, 0.1); border: 2px solid var(--galaxy-accent); border-radius: 10px; padding: 15px; margin-bottom: 20px; color: var(--text-primary); font-weight: bold;';
         notice.innerHTML = '🛒 Basket Order - Order details are locked to prevent changes. Only add additional notes below if needed.';
         formContainer.insertBefore(notice, formContainer.firstChild);
     }
 
     // Scroll to form
     document.getElementById('ticketForm').scrollIntoView({ behavior: 'smooth' });
+
+    // Focus on name field if empty
+    if (!nameField.value.trim()) {
+        nameField.focus();
+    } else if (!discordField.value.trim() || discordField.value === 'Please provide your Discord') {
+        discordField.focus();
+    }
 }
 
 // Filtering and searching
@@ -710,48 +727,7 @@ function addToShoppingHistory(orderData) {
 }
 
 // Promotional codes system
-let promoCodes = JSON.parse(localStorage.getItem('promoCodes')) || {
-    'WELCOME10': {
-        discount: 10,
-        type: 'percentage',
-        description: '10% off welcome discount',
-        usageLimit: null, // null = unlimited
-        usedCount: 0,
-        applicableItems: null, // null = all items
-        active: true,
-        created: new Date().toISOString()
-    },
-    'SAVE5': {
-        discount: 5,
-        type: 'fixed',
-        description: 'Save 5 diamonds',
-        usageLimit: null,
-        usedCount: 0,
-        applicableItems: null,
-        active: true,
-        created: new Date().toISOString()
-    },
-    'MEGASALE': {
-        discount: 25,
-        type: 'percentage',
-        description: 'Mega sale 25% off',
-        usageLimit: null,
-        usedCount: 0,
-        applicableItems: null,
-        active: true,
-        created: new Date().toISOString()
-    },
-    'LOYALTY': {
-        discount: 15,
-        type: 'percentage',
-        description: 'Loyalty discount',
-        usageLimit: null,
-        usedCount: 0,
-        applicableItems: null,
-        active: true,
-        created: new Date().toISOString()
-    }
-};
+let promoCodes = JSON.parse(localStorage.getItem('promoCodes')) || {};
 
 // Promo code usage history
 let promoCodeUsage = JSON.parse(localStorage.getItem('promoCodeUsage')) || [];
