@@ -19,7 +19,7 @@ let items = JSON.parse(localStorage.getItem('shopItems')) || [
     { name: 'Netherite Sword (Enchanted)', price: 23, description: 'Powerful enchanted sword with assorted enchants', stock: 5, category: 'weapons' },
     { name: 'Netherite Pickaxe', price: 30, description: 'Durable enchanted pickaxe for mining', stock: 3, category: 'tools' },
     { name: 'Netherite Axe', price: 30, description: 'Sharp enchanted axe for chopping', stock: 4, category: 'tools' },
-    { name: 'Netherite Armor (Full Set)', price: 100, description: 'Complete enchanted netherite armor set', stock: 2, category: 'armor' },
+    { name: 'Netherite Armor (Full Set)', price: 80, description: 'Complete enchanted netherite armor set - 20% off deal!', stock: 2, category: 'armor' },
     { name: 'Netherite Armor (Individual Part)', price: 20, description: 'Individual enchanted netherite armor piece (Helmet, Chestplate, Leggings, or Boots)', stock: 10, category: 'armor' },
     { name: 'Food x64', price: 5, description: '64 Baked Potatoes - Perfect for long adventures', stock: 20, category: 'consumables' },
     { name: 'Elytra', price: 30, description: 'Wings for flying through the skies', stock: 3, category: 'tools' },
