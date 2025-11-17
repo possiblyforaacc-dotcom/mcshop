@@ -3,21 +3,59 @@ let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
 
 document.getElementById('ticketForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const name = document.getElementById('name').value;
-    const discord = document.getElementById('discord').value;
+    const name = document.getElementById('name').value.trim();
+    const discord = document.getElementById('discord').value.trim();
     const item = document.getElementById('item').value;
-    const quantity = document.getElementById('quantity').value;
-    const message = document.getElementById('message').value;
+    const quantity = parseInt(document.getElementById('quantity').value);
+    const message = document.getElementById('message').value.trim();
 
-    // Validate Discord username format
-    if (!discord.trim()) {
-        alert('Please enter your Discord username');
+    // Enhanced validation
+    if (!name) {
+        showToast('Please enter your name', 'error');
+        document.getElementById('name').focus();
         return;
     }
 
-    // Check if this is a basket order
+    if (!discord) {
+        showToast('Please enter your Discord username', 'error');
+        document.getElementById('discord').focus();
+        return;
+    }
+
+    // Basic Discord username validation
+    if (!discord.includes('#') && !discord.includes('@')) {
+        showToast('Please enter a valid Discord username (e.g., username#1234 or @username)', 'error');
+        document.getElementById('discord').focus();
+        return;
+    }
+
+    if (!item || item === '') {
+        showToast('Please select an item', 'error');
+        document.getElementById('item').focus();
+        return;
+    }
+
+    if (isNaN(quantity) || quantity < 1) {
+        showToast('Please enter a valid quantity', 'error');
+        document.getElementById('quantity').focus();
+        return;
+    }
+
+    // Check stock availability for basket orders
     const isBasketOrder = item === 'Basket Order' && basket && basket.length > 0;
-    const basketData = isBasketOrder ? [...basket] : null;
+    if (isBasketOrder) {
+        for (const basketItem of basket) {
+            const shopItem = items.find(i => i.name === basketItem.name);
+            if (shopItem && !shopItem.tradeIn && shopItem.stock < basketItem.quantity) {
+                showToast(`Insufficient stock for ${basketItem.name}. Available: ${shopItem.stock}`, 'error');
+                return;
+            }
+        }
+    }
+
+    // Check if this is a basket order
+    const basketOrderCheck = item === 'Basket Order' && basket && basket.length > 0;
+    const basketData = basketOrderCheck ? [...basket] : null;
 
     const ticket = {
         id: Date.now(),
@@ -43,7 +81,7 @@ document.getElementById('ticketForm').addEventListener('submit', function(e) {
     sendDiscordNotification(ticket);
 
     // Clear basket if it was a basket order
-    if (isBasketOrder) {
+    if (basketOrderCheck) {
         clearBasket();
     }
 
@@ -313,6 +351,9 @@ function checkPassword() {
 function displayTickets() {
     const ticketsDiv = document.getElementById('tickets');
     ticketsDiv.innerHTML = '<h3>Customer Tickets</h3>';
+
+    // Update admin stats
+    updateAdminStats();
     if (tickets.length === 0) {
         ticketsDiv.innerHTML += '<p class="text-secondary">No tickets yet.</p>';
         return;
@@ -334,7 +375,9 @@ function displayTickets() {
     const tbody = table.querySelector('tbody');
     tickets.forEach(ticket => {
         const row = document.createElement('tr');
-        const statusClass = ticket.status === 'Closed' ? 'status-closed' : ticket.status === 'Responded' ? 'status-responded' : 'status-open';
+        const statusClass = ticket.status === 'Closed' ? 'status-closed' :
+                           ticket.status === 'Responded' ? 'status-responded' :
+                           ticket.status === 'Completed' ? 'status-completed' : 'status-open';
         const quantity = ticket.quantity || 1;
         const totalDiamonds = calculateTotalDiamonds(ticket);
         const isBasketOrder = ticket.basket && ticket.basket.length > 0;
@@ -368,7 +411,8 @@ function displayTickets() {
                     <textarea id="response-${ticket.id}" placeholder="Your response..." class="w-100" rows="3">${ticket.response}</textarea>
                     <div class="flex space-between mt-1">
                         <button class="btn-primary" onclick="respondToTicket(${ticket.id})">Respond</button>
-                        <button class="btn-danger" onclick="closeTicket(${ticket.id})">Close</button>
+                        ${ticket.status !== 'Completed' ? `<button class="btn-success" onclick="completeOrder(${ticket.id})" title="Mark as completed and reduce stock">Complete Order</button>` : ''}
+                        <button class="btn-danger" onclick="closeTicket(${ticket.id})" title="Close ticket without completing">Close</button>
                     </div>
                 </div>
             </td>
@@ -388,9 +432,13 @@ function respondToTicket(id) {
     displayTickets();
 }
 
-function closeTicket(id) {
+function completeOrder(id) {
     const ticket = tickets.find(t => t.id === id);
-    ticket.status = 'Closed';
+    if (!ticket) return;
+
+    // Mark as completed
+    ticket.status = 'Completed';
+    ticket.completedAt = new Date().toISOString();
 
     // Reduce stock for basket orders
     if (ticket.basket && ticket.basket.length > 0) {
@@ -398,23 +446,34 @@ function closeTicket(id) {
             const shopItem = items.find(i => i.name === basketItem.name);
             if (shopItem && !shopItem.tradeIn && shopItem.stock > 0) {
                 shopItem.stock = Math.max(0, shopItem.stock - basketItem.quantity);
+                console.log(`Reduced stock for ${basketItem.name}: ${shopItem.stock + basketItem.quantity} → ${shopItem.stock}`);
             }
         });
-        saveItems();
-        displayRestock();
-        displayShop();
     }
     // Reduce stock for single item orders (non-basket)
-    else if (ticket.item !== 'Basket Order' && ticket.item !== 'Trade-in Request') {
+    else if (ticket.item !== 'Basket Order' && !ticket.item.includes('Trade-in')) {
         const shopItem = items.find(i => i.name === ticket.item);
         if (shopItem && !shopItem.tradeIn && shopItem.stock > 0) {
             shopItem.stock = Math.max(0, shopItem.stock - ticket.quantity);
-            saveItems();
-            displayRestock();
-            displayShop();
+            console.log(`Reduced stock for ${ticket.item}: ${shopItem.stock + ticket.quantity} → ${shopItem.stock}`);
         }
     }
 
+    saveItems();
+    localStorage.setItem('tickets', JSON.stringify(tickets));
+    displayRestock();
+    displayShop();
+    displayTickets();
+
+    // Send completion notification
+    sendCompletionNotification(ticket);
+}
+
+function closeTicket(id) {
+    const ticket = tickets.find(t => t.id === id);
+    if (!ticket) return;
+
+    ticket.status = 'Closed';
     localStorage.setItem('tickets', JSON.stringify(tickets));
     displayTickets();
 }
@@ -477,4 +536,66 @@ function updateStock(index) {
 function toggleAvailability(index) {
     items[index].available = items[index].available !== false ? false : true;
     displayRestock();
+}
+
+// Send completion notification to Discord
+function sendCompletionNotification(ticket) {
+    const webhookURL = 'https://discord.com/api/webhooks/1439768220348317767/Wkm_TQXlCX_uHmaRst1us4n5vyOqrirVriYONeTYsY98VYTbcQ3xy0ly4l-OuJxXmwJK';
+
+    if (webhookURL === 'YOUR_DISCORD_WEBHOOK_URL') {
+        console.log('Discord webhook not configured');
+        return;
+    }
+
+    const isBasketOrder = ticket.basket && ticket.basket.length > 0;
+
+    let completionMessage = '';
+    if (isBasketOrder) {
+        completionMessage = `✅ **Order Completed!**\nCustomer: ${ticket.name}\nBasket order has been fulfilled and stock updated.`;
+    } else {
+        completionMessage = `✅ **Order Completed!**\nCustomer: ${ticket.name}\nItem: ${ticket.item}\nOrder has been fulfilled and stock updated.`;
+    }
+
+    fetch(webhookURL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            content: `<@1160306193567338579> ${completionMessage}`,
+            embeds: [{
+                title: '🎉 Order Completed Successfully!',
+                color: 0x10B981, // Green
+                fields: [
+                    {
+                        name: '👤 Customer',
+                        value: ticket.name,
+                        inline: true
+                    },
+                    {
+                        name: '📦 Order Type',
+                        value: isBasketOrder ? 'Basket Order' : 'Single Item',
+                        inline: true
+                    },
+                    {
+                        name: '⏰ Completed At',
+                        value: new Date(ticket.completedAt).toLocaleString(),
+                        inline: true
+                    }
+                ],
+                footer: {
+                    text: `Order ID: ${ticket.id}`
+                }
+            }]
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to send completion notification');
+        }
+        console.log('Completion notification sent successfully');
+    })
+    .catch(error => {
+        console.error('Error sending completion notification:', error);
+    });
 }

@@ -170,6 +170,9 @@ function displayShop() {
             <p class="stock ${stockClass} badge">${stockText}</p>
             ${buttonHTML}
         `;
+
+        // Add hover tooltip with more details
+        itemDiv.title = `${item.name}\n${item.description}\nPrice: ${item.price > 0 ? item.price + ' diamonds' : 'Contact for price'}\nStock: ${item.stock}`;
         shop.appendChild(itemDiv);
     });
 }
@@ -343,9 +346,82 @@ function displayShop() {
     });
 }
 
+// Low stock warnings
+function checkLowStock() {
+    const lowStockItems = items.filter(item => !item.tradeIn && item.stock > 0 && item.stock <= 3);
+    if (lowStockItems.length > 0) {
+        const itemNames = lowStockItems.map(item => `${item.name} (${item.stock})`).join(', ');
+        showToast(`⚠️ Low stock alert: ${itemNames}`, 'warning', 5000);
+    }
+}
+
+// Admin statistics
+function updateAdminStats() {
+    if (document.getElementById('adminContent') && document.getElementById('adminContent').style.display === 'block') {
+        const totalTickets = tickets.length;
+        const openTickets = tickets.filter(t => t.status === 'Open').length;
+        const completedOrders = tickets.filter(t => t.status === 'Completed').length;
+        const totalRevenue = tickets
+            .filter(t => t.status === 'Completed')
+            .reduce((sum, ticket) => {
+                if (ticket.basket && ticket.basket.length > 0) {
+                    return sum + ticket.basket.reduce((basketSum, item) => {
+                        const shopItem = items.find(i => i.name === item.name);
+                        return basketSum + (shopItem && !shopItem.tradeIn ? shopItem.price * item.quantity : 0);
+                    }, 0);
+                } else {
+                    const shopItem = items.find(i => i.name === ticket.item);
+                    return sum + (shopItem && !shopItem.tradeIn ? shopItem.price * ticket.quantity : 0);
+                }
+            }, 0);
+
+        // Add stats to admin panel
+        const statsDiv = document.createElement('div');
+        statsDiv.id = 'admin-stats';
+        statsDiv.innerHTML = `
+            <h4>📊 Shop Statistics</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div class="stat-card">
+                    <strong>${totalTickets}</strong><br>
+                    <small>Total Orders</small>
+                </div>
+                <div class="stat-card">
+                    <strong>${openTickets}</strong><br>
+                    <small>Open Tickets</small>
+                </div>
+                <div class="stat-card">
+                    <strong>${completedOrders}</strong><br>
+                    <small>Completed Orders</small>
+                </div>
+                <div class="stat-card">
+                    <strong>${totalRevenue}</strong><br>
+                    <small>Total Diamonds</small>
+                </div>
+            </div>
+        `;
+
+        const existingStats = document.getElementById('admin-stats');
+        if (existingStats) {
+            existingStats.replaceWith(statsDiv);
+        } else {
+            document.getElementById('adminContent').insertBefore(statsDiv, document.getElementById('tickets'));
+        }
+    }
+}
+
+// Enhanced admin panel opening
+function openAdmin() {
+    document.getElementById('adminModal').style.display = 'flex';
+    // Check for low stock when opening admin
+    setTimeout(checkLowStock, 500);
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     createStars();
     displayShop();
     displayBasket();
+
+    // Check for low stock on page load
+    setTimeout(checkLowStock, 1000);
 });
